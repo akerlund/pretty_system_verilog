@@ -1,0 +1,47 @@
+---
+rules:
+  module_indentation:
+    desc:  The module indentation of the port declarations
+    value: 4
+
+  global_indentation:
+    desc:  The indentation after the module declaration
+    value: 2
+
+  collect_logics:
+    desc:  Collect all assignments and place them before processes
+    value: 2
+
+  collect_assignments:
+    desc:  Collect all assignments and place them before processes
+    value: 2
+
+  allow_key_reg:
+    desc:  Using reg is not allowed (NOT SUPPORTED)
+    value: 0
+
+  allow_key_wire:
+    desc:  Using wire is not allowed (NOT SUPPORTED)
+    value: 0
+
+  localparam_types:
+    desc:  Mandatory types for localparams
+    value:
+      - logic
+      - int
+
+  parameter_types:
+    desc:  Mandatory types for parameters
+    value:
+      - logic
+      - int
+
+  newlines_above_comments:
+    desc:  Number of newlines to be places above comments
+    value:
+      - logic
+      - int
+
+
+
+
