@@ -43,14 +43,17 @@ def psv():
   svparser = sv_parser.SvParser()
   svparser.load_sv_file("/home/erland/Documents/pretty_system_verilog/psv/sv_file.sv")
 
-  list_all_modules(svparser)
+  rtl_tree(svparser)
   #get_module(svparser)
 
+def rtl_tree(svparser):
+  svparser.rtl_tree("/home/erland/Documents/pretty_system_verilog/psv")
+
 def list_all_modules(svparser):
-  svparser.list_all_modules("/home/erland/Documents/rtl_fpga_projects/submodules/rtl_common_design/modules")
+  svparser.list_all_modules("/home/erland/Documents/pretty_system_verilog/psv")
 
 def find_rtl_folders(svparser):
-  found = svparser.find_rtl_folders("/home/erland/Documents/rtl_fpga_projects/submodules/rtl_common_design/modules")
+  found = svparser.find_rtl_folders("/home/erland/Documents/pretty_system_verilog/psv")
   for f in found:
     print(f)
 
