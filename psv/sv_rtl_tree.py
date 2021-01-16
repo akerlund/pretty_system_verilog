@@ -49,7 +49,7 @@ def list_all_modules(self, root_folder):
         #instance_name = f[2]
         self.all_modules[module_name].append(module_type)
 
-  self.print_all_modules()
+  self.find_top()
 
 
 def print_all_modules(self):
@@ -66,8 +66,23 @@ def print_all_modules(self):
 
 def find_top(self):
 
-  tops = []
+  tops   = []
+  tops_n = []
 
-  for key in self.all_modules:
-    sub = self.all_modules[key]
+  for _k0 in self.all_modules:
+    _is_top = True
+    for _k1 in self.all_modules:
+      if _k0 in self.all_modules[_k1]:
+        _is_top = False
+        tops_n.append(_k0)
+        break
+    if _is_top:
+      tops.append(_k0)
 
+  print("All tops")
+  for t in tops:
+    print(t)
+
+  print("\n\nAll non-tops")
+  for t in tops_n:
+    print(t)
