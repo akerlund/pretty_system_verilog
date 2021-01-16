@@ -34,7 +34,7 @@ class SvParser:
                      get_module_instances_with_parameters
 
   from sv_rtl_tree import list_all_modules, print_all_modules, find_top_modules,\
-                          print_top_modules, rtl_tree
+                          print_top_modules, rtl_tree, rtl_branch
 
   def __init__(self):
     None

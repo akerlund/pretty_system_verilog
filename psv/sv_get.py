@@ -165,8 +165,18 @@ def get_module_instances(self):
 
 def get_module_instances_without_parameters(self):
   e = r'((\w+)\s+(\w+)\s*\(([.|\w|\s|,|\/|\)|\(]*)\);)'
-  return re.findall(e, self.flat)
+  mod = []
+  for m in re.findall(e, self.flat):
+    module_type = m[1]
+    if module_type != "module":
+      mod.append(m)
+  return mod
 
 def get_module_instances_with_parameters(self):
   e = r'((\w+)\s*#\s*\([.|\w|\s|,|\/|\)|\(]*\)(\s*\w+\s*)\([.|\w|\s|,|\/|\)|\(]*\);)'
-  return re.findall(e, self.flat)
+  mod = []
+  for m in re.findall(e, self.flat):
+    module_type = m[1]
+    if module_type != "module":
+      mod.append(m)
+  return mod

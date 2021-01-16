@@ -52,6 +52,10 @@ def list_all_modules(self, root_folder):
 
 def print_all_modules(self):
 
+  print(80*'-')
+  print("- All (%d) modules" % len(self.all_modules))
+  print(80*'-')
+
   for key in self.all_modules:
     sub = self.all_modules[key]
     print("\n\nModule: " + key)
@@ -94,16 +98,37 @@ def print_top_modules(self):
     print(t)
 
 
+def rtl_branch(self, name, n, last, left):
+
+  if left:
+    branch = n*"| " + name + "\n"
+  else:
+    branch = ""
+
+  _len  = len(self.all_modules[name])
+  _last = False
+  _left = _len-1
+
+  if _len != 0:
+    branch += (n)*' ' + "|" + "\n"
+    if not last:
+      branch += (n*3-1)*' ' + " +-"
+    else:
+      branch += (n*3-1)*' ' + " `-"
+
+
+
+
+  for i in range(len(self.all_modules[name])):
+    if i == _len-1:
+      _last = True
+    branch += self.rtl_branch(self.all_modules[name][i], n+1, _last, _left) + "\n"
+
+  return branch
+
+
 def rtl_tree(self, folder):
 
-  def rtl_branch(name, n=0):
-    if not name == "module":
-      branch = n*"|  " + "|--" + name + "\n"
-      if len(self.all_modules[name]) != 0:
-        for s in self.all_modules[name]:
-          if not s == "module":
-            branch += rtl_branch(s, n+2) + "\n"
-    return branch
 
   self.list_all_modules(folder)
   self.find_top_modules()
@@ -114,12 +139,23 @@ def rtl_tree(self, folder):
     print("ERROR [rtl_tree] More than one top module found!")
     return -1
 
-  rtl_tree  = self.tops[0]
-  rtl_tree += "|" + "\n"
+  rtl_tree  = self.tops[0] + "\n"
 
-  print("RTL Tree")
-  for sub in self.all_modules[self.tops[0]]:
-    rtl_tree += rtl_branch(sub, 0)
+  print(80*'-')
+  print("RTL Tree of \"%s\"" % self.tops[0])
+  print(80*'-')
+  _len  = len(self.all_modules[self.tops[0]])
+  _last = False
+  _left = _len -1
+  for i in range(len(self.all_modules[self.tops[0]])):
+    rtl_tree += "|" + "\n"
+    if i == _len-1:
+      rtl_tree += "`-"
+      _last = True
+    else:
+      rtl_tree += "+-"
+    rtl_tree += self.rtl_branch(self.all_modules[self.tops[0]][i], 1, _last, _left)
+    rtl_tree += "D\n"
 
   print(rtl_tree)
 

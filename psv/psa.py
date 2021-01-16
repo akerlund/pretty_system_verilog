@@ -41,7 +41,7 @@ def psv():
     print("module is not a keyword")
 
   svparser = sv_parser.SvParser()
-  svparser.load_sv_file("/home/erland/Documents/pretty_system_verilog/psv/sv_file.sv")
+  svparser.load_sv_file("/home/erland/Documents/pretty_system_verilog/psv/rtl/top.sv")
 
   rtl_tree(svparser)
   #get_module(svparser)
