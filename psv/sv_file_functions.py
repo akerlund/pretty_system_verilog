@@ -19,7 +19,29 @@
 ##
 ################################################################################
 
+import os
+
 def load_sv_file(self, file_path):
   with open(file_path, 'r') as file:
-    self.svf  = file.read().split('\n')
-    self.flat = ''.join(self.svf)
+    self.current_file = file_path
+    self.svf          = file.read().split('\n')
+    self.flat         = ''.join(self.svf)
+
+
+def find_rtl_folders(self, top):
+  rtl_folders = []
+  for root, dirs, _ in os.walk(top, topdown=False):
+    for name in dirs:
+      if name == "rtl":
+        rtl_folders.append(os.path.join(root, name))
+  return rtl_folders
+
+
+def find_sv_files(self, top, exclude_pkg = 0):
+  sv_files = []
+  for f in os.listdir(top):
+    if f.endswith(".sv"):
+      if exclude_pkg:
+        if not f.endswith("_pkg.sv"):
+          sv_files.append(top+'/'+f)
+  return sv_files

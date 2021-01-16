@@ -23,7 +23,7 @@
 
 class SvParser:
 
-  from sv_file_functions import load_sv_file
+  from sv_file_functions import load_sv_file, find_rtl_folders, find_sv_files
 
   from sv_get import get_always_ff, get_always_comb, get_always_x,\
                      get_comment_pre_offset, get_module, get_from_begin_to_end,\
@@ -33,8 +33,7 @@ class SvParser:
                      get_module_instances_without_parameters,\
                      get_module_instances_with_parameters
 
+  from sv_rtl_tree import list_all_modules, print_all_modules, find_top
+
   def __init__(self):
     None
-
-      #print(self.flat)
-      #print(type(self.flat))

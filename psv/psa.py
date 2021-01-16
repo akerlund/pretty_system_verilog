@@ -32,7 +32,7 @@ import sv_parser
 def psv():
 
   rules = rulebook.RuleBook()
-  rules.load_rules("/home/erland/Documents/rtl_fpga_projects/submodules/rtl_common_design/scripts/psv/rules.yml")
+  rules.load_rules("/home/erland/Documents/pretty_system_verilog/psv/rules.yml")
   rules.print_rules()
 
   if rules.is_keyword("module"):
@@ -41,10 +41,18 @@ def psv():
     print("module is not a keyword")
 
   svparser = sv_parser.SvParser()
-  svparser.load_sv_file("/home/erland/Documents/rtl_fpga_projects/submodules/rtl_common_design/scripts/psv/sv_file.sv")
+  svparser.load_sv_file("/home/erland/Documents/pretty_system_verilog/psv/sv_file.sv")
 
-  get_module_instances(svparser)
+  list_all_modules(svparser)
+  #get_module(svparser)
 
+def list_all_modules(svparser):
+  svparser.list_all_modules("/home/erland/Documents/rtl_fpga_projects/submodules/rtl_common_design/modules")
+
+def find_rtl_folders(svparser):
+  found = svparser.find_rtl_folders("/home/erland/Documents/rtl_fpga_projects/submodules/rtl_common_design/modules")
+  for f in found:
+    print(f)
 
 def get_module_instances(svparser):
   found = svparser.get_module_instances()
@@ -68,7 +76,9 @@ def get_logic_declarations(svparser):
     print(r)
 
 def get_module(svparser):
-  print(svparser.get_module())
+  name, body = svparser.get_module()
+  print("name = \"" + name + "\"")
+  print(body)
 
 def get_always_comb(svparser):
   found = svparser.get_always_comb()

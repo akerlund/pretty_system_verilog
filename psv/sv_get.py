@@ -44,18 +44,21 @@ def get_comment_pre_offset(self, offset):
   return ""
 
 
-def get_module(self):
+def get_module(self, only_name = 0):
 
   _i = -1
   mod = ""
 
   for i in range(len(self.svf)):
-    match = re.search(r'module ', self.svf[i])
+    match = re.search(r'^\s*module (\w+)(\s*#?|\s*\(?)', self.svf[i])
     if match:
       _i = i
+      name = match.group(1)
+      if only_name:
+        return name
 
   if _i == -1:
-    print("ERROR [module] No module found")
+    print("ERROR [module] No module found in file (%s)", self.current_file)
     return ""
 
   for i in range(len(self.svf)):
@@ -66,7 +69,7 @@ def get_module(self):
       break
     mod += self.svf[i] + '\n'
 
-  return mod
+  return name, mod
 
 
 def get_from_begin_to_end(self, offset):
