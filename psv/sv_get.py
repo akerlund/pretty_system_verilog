@@ -141,11 +141,11 @@ def get_assign_declarations(self):
 
 
 def get_typedef_declarations(self):
-  None
+  return []
 
 
 def get_custom_declarations(self):
-  None
+  return []
 
 
 def get_all_brackets(self, row):

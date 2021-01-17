@@ -21,30 +21,20 @@
 ##
 ################################################################################
 
-import yaml
-import sys, os
-
-import rulebook
-
+import sys
 import sv_parser
 
 # Pretty System Verilog
 def psv():
 
-  rules = rulebook.RuleBook()
-  rules.load_rules("/home/erland/Documents/pretty_system_verilog/psv/rules.yml")
-  rules.print_rules()
-
-  if rules.is_keyword("module"):
-    print("module is a keyword")
-  else:
-    print("module is not a keyword")
-
-  svparser = sv_parser.SvParser()
+  svparser = sv_parser.SvParser("/home/erland/Documents/pretty_system_verilog/psv/rules.yml")
   svparser.load_sv_file("/home/erland/Documents/pretty_system_verilog/psv/rtl/top.sv")
 
   rtl_tree(svparser)
-  #get_module(svparser)
+  #pretty(svparser)
+
+def pretty(svparser):
+  svparser.pretty("/home/erland/Documents/pretty_system_verilog/psv/rtl/top.sv")
 
 def rtl_tree(svparser):
   svparser.rtl_tree("/home/erland/Documents/pretty_system_verilog/psv")

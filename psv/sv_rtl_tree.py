@@ -47,8 +47,8 @@ def list_all_modules(self, root_folder):
       #print("\n\nModule: " + module_name)
       for f in module_instances:
         module_type   = f[1]
-        #instance_name = f[2]
-        self.all_modules[module_name].append(module_type)
+        instance_name = f[2]
+        self.all_modules[module_name].append((module_type, instance_name))
 
 
 def print_all_modules(self):
@@ -63,8 +63,8 @@ def print_all_modules(self):
     if not len(sub):
       print("  - No submodules")
     else:
-      for s in sub:
-        print("  " + s)
+      for module_type, _ in sub:
+        print("  " + module_type)
 
 
 def find_top_modules(self):
@@ -75,10 +75,11 @@ def find_top_modules(self):
   for _k0 in self.all_modules:
     _is_top = True
     for _k1 in self.all_modules:
-      if _k0 in self.all_modules[_k1]:
-        _is_top = False
-        self.tops_n.append(_k0)
-        break
+      for _m, _i in self.all_modules[_k1]:
+        if _k0 == _m:
+          _is_top = False
+          self.tops_n.append(_k0)
+          break
     if _is_top:
       self.tops.append(_k0)
 
@@ -99,24 +100,27 @@ def print_top_modules(self):
     print(t)
 
 
-def rtl_branch(self, name, parent_id):
+def rtl_branch(self, name, parent_id, instance_name, hier_nr, print_instance=0):
 
   _node_id = self.tree_counter
   self.tree_counter += 1
 
   #create_node(tag=None, identifier=None, parent=None, data=None)
-  self.tree.create_node(name, str(_node_id), parent=str(parent_id))
+  _tag = name
+  if print_instance:
+    _tag = _tag.ljust(60-hier_nr*4) + " (%s)" % instance_name
+
+  self.tree.create_node(_tag, str(_node_id), parent=str(parent_id), data=instance_name)
 
   for i in range(len(self.all_modules[name])):
-    self.rtl_branch(self.all_modules[name][i], _node_id)
+    _m, _i = self.all_modules[name][i]
+    self.rtl_branch(_m, _node_id, _i, hier_nr+1, print_instance)
 
 
-def rtl_tree(self, folder):
+def rtl_tree(self, folder, instance_name=0):
 
   self.list_all_modules(folder)
   self.find_top_modules()
-  self.print_all_modules()
-  self.print_top_modules()
 
   if len(self.tops) != 1:
     print("ERROR [rtl_tree] More than one top module found!")
@@ -131,6 +135,7 @@ def rtl_tree(self, folder):
   self.tree_counter = 1
 
   for i in range(len(self.all_modules[self.tops[0]])):
-    self.rtl_branch(self.all_modules[self.tops[0]][i], parent_id=0)
+    _m, _i = self.all_modules[self.tops[0]][i]
+    self.rtl_branch(_m, 0, _i, 1, True)
 
   self.tree.show()
