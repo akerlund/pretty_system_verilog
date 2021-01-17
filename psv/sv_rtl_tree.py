@@ -20,6 +20,7 @@
 ################################################################################
 
 import os
+from treelib import Node, Tree
 
 def list_all_modules(self, root_folder):
 
@@ -98,37 +99,19 @@ def print_top_modules(self):
     print(t)
 
 
-def rtl_branch(self, name, n, last, left):
+def rtl_branch(self, name, parent_id):
 
-  if left:
-    branch = n*"| " + name + "\n"
-  else:
-    branch = ""
+  _node_id = self.tree_counter
+  self.tree_counter += 1
 
-  _len  = len(self.all_modules[name])
-  _last = False
-  _left = _len-1
-
-  if _len != 0:
-    branch += (n)*' ' + "|" + "\n"
-    if not last:
-      branch += (n*3-1)*' ' + " +-"
-    else:
-      branch += (n*3-1)*' ' + " `-"
-
-
-
+  #create_node(tag=None, identifier=None, parent=None, data=None)
+  self.tree.create_node(name, str(_node_id), parent=str(parent_id))
 
   for i in range(len(self.all_modules[name])):
-    if i == _len-1:
-      _last = True
-    branch += self.rtl_branch(self.all_modules[name][i], n+1, _last, _left) + "\n"
-
-  return branch
+    self.rtl_branch(self.all_modules[name][i], _node_id)
 
 
 def rtl_tree(self, folder):
-
 
   self.list_all_modules(folder)
   self.find_top_modules()
@@ -139,25 +122,15 @@ def rtl_tree(self, folder):
     print("ERROR [rtl_tree] More than one top module found!")
     return -1
 
-  rtl_tree  = self.tops[0] + "\n"
-
   print(80*'-')
   print("RTL Tree of \"%s\"" % self.tops[0])
   print(80*'-')
-  _len  = len(self.all_modules[self.tops[0]])
-  _last = False
-  _left = _len -1
+
+  self.tree = Tree()
+  self.tree.create_node(self.tops[0], str(0))
+  self.tree_counter = 1
+
   for i in range(len(self.all_modules[self.tops[0]])):
-    rtl_tree += "|" + "\n"
-    if i == _len-1:
-      rtl_tree += "`-"
-      _last = True
-    else:
-      rtl_tree += "+-"
-    rtl_tree += self.rtl_branch(self.all_modules[self.tops[0]][i], 1, _last, _left)
-    rtl_tree += "D\n"
+    self.rtl_branch(self.all_modules[self.tops[0]][i], parent_id=0)
 
-  print(rtl_tree)
-
-
-
+  self.tree.show()
