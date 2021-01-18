@@ -20,15 +20,25 @@
 ################################################################################
 
 import re
+import sv_keywords
 
+# ------------------------------------------------------------------------------
+#
+# ------------------------------------------------------------------------------
 def get_always_ff(self):
   return self.get_always_x(r'always_ff')
 
 
+# ------------------------------------------------------------------------------
+#
+# ------------------------------------------------------------------------------
 def get_always_comb(self):
   return self.get_always_x(r'always_comb')
 
 
+# ------------------------------------------------------------------------------
+#
+# ------------------------------------------------------------------------------
 def get_always_x(self, exp):
   found = []
   for i in range(len(self.svf)):
@@ -40,10 +50,16 @@ def get_always_x(self, exp):
   return found
 
 
+# ------------------------------------------------------------------------------
+#
+# ------------------------------------------------------------------------------
 def get_comment_pre_offset(self, offset):
   return ""
 
 
+# ------------------------------------------------------------------------------
+#
+# ------------------------------------------------------------------------------
 def get_module(self, only_name = 0):
 
   _i = -1
@@ -72,6 +88,9 @@ def get_module(self, only_name = 0):
   return name, mod
 
 
+# ------------------------------------------------------------------------------
+#
+# ------------------------------------------------------------------------------
 def get_from_begin_to_end(self, offset):
 
   r = "" # Return
@@ -91,6 +110,9 @@ def get_from_begin_to_end(self, offset):
   return r, c
 
 
+# ------------------------------------------------------------------------------
+#
+# ------------------------------------------------------------------------------
 def get_to_semicolon(self, offset):
 
   r = "" # Return
@@ -105,6 +127,9 @@ def get_to_semicolon(self, offset):
   return r, c
 
 
+# ------------------------------------------------------------------------------
+#
+# ------------------------------------------------------------------------------
 def get_logic_declarations(self):
 
   illegal_words = ["parameter", "input", "output", "localparam"]
@@ -119,6 +144,9 @@ def get_logic_declarations(self):
   return logics
 
 
+# ------------------------------------------------------------------------------
+#
+# ------------------------------------------------------------------------------
 def words_exist_in_string(self, string, words):
 
   for word in words:
@@ -127,7 +155,9 @@ def words_exist_in_string(self, string, words):
   return False
 
 
-
+# ------------------------------------------------------------------------------
+#
+# ------------------------------------------------------------------------------
 def get_assign_declarations(self):
 
   assigns = []
@@ -140,14 +170,23 @@ def get_assign_declarations(self):
   return assigns
 
 
+# ------------------------------------------------------------------------------
+#
+# ------------------------------------------------------------------------------
 def get_typedef_declarations(self):
   return []
 
 
+# ------------------------------------------------------------------------------
+#
+# ------------------------------------------------------------------------------
 def get_custom_declarations(self):
   return []
 
 
+# ------------------------------------------------------------------------------
+#
+# ------------------------------------------------------------------------------
 def get_all_brackets(self, row):
 
   brackets = []
@@ -158,29 +197,71 @@ def get_all_brackets(self, row):
   return brackets
 
 
-def get_module_instances(self):
+# ------------------------------------------------------------------------------
+#
+# ------------------------------------------------------------------------------
+def get_submodule_instances(self):
   # TODO: Add support for ';' in comments
-  return self.get_module_instances_without_parameters() +\
-         self.get_module_instances_with_parameters()
+  return self.get_submodule_instances_without_parameters() +\
+         self.get_submodule_instances_with_parameters()
 
 
-def get_module_instances_without_parameters(self):
+# ------------------------------------------------------------------------------
+#
+# ------------------------------------------------------------------------------
+def get_submodule_instances_without_parameters(self):
   e = r'((\w+)\s+(\w+)\s*\(([.|\w|\s|,|\/|\)|\(]*)\);)'
   mod = []
   for m in re.findall(e, self.flat):
     module_type = m[1]
     if module_type != "module":
-      print(m[1])
       mod.append(m)
   return mod
 
 
-def get_module_instances_with_parameters(self):
-  e = r'((\w+)\s*#\s*\([.|\w|\s|,|\/|\)|\(]*\)(\s*\w+\s*)\([.|\w|\s|,|\/|\)|\(]*\);)'
+# ------------------------------------------------------------------------------
+#
+# ------------------------------------------------------------------------------
+def get_submodule_instances_with_parameters(self):
+  # ((\w+)\s*#\s*\([\w\W]+?(?=\)\s*\;))
+  e = r'((\w+)\s*#\s*\(\s*.+[\w\W]*\)(\s*\w+\s*)\(\s*.+[\w\W]*\);)'
   mod = []
   for m in re.findall(e, self.flat):
     module_type = m[1]
     if module_type != "module":
-      print(m[1])
       mod.append(m)
+  return mod
+
+
+# ------------------------------------------------------------------------------
+# Detects submodule syntaxes and compares the type with the list of types, i.e.,
+# self.all_modules.keys() and return all valid in a list.
+# ------------------------------------------------------------------------------
+def detect_submodule(self, top_type):
+
+  e0 = r'\s*(\w+)\s+(\w+)\s*\('                   # Without parameter
+  e1 = r'\s*(\w+)\s*#\(.*|\s\)\s*\)\s*(\w+)\s*\(' # With parameter
+  mod = []
+
+  for m in re.findall(e0, self.flat):
+
+    module_type = m[0]
+
+    if module_type in self.all_modules.keys():
+      if module_type == top_type:
+        print("WARNING [detect_submodule] Recursive add: (%s)" % module_type)
+      else:
+        mod.append(m)
+
+  for m in re.findall(e1, self.flat):
+
+    module_type = m[0]
+
+    if module_type in self.all_modules.keys():
+      if module_type == top_type:
+        print("WARNING [detect_submodule] Recursive add: (%s)" % module_type)
+      else:
+        mod.append(m)
+
+
   return mod

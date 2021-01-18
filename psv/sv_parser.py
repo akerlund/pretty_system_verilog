@@ -25,6 +25,9 @@ import os, sys
 import rulebook
 import yaml
 
+# ------------------------------------------------------------------------------
+#
+# ------------------------------------------------------------------------------
 class SvParser:
 
   from sv_file_functions import\
@@ -51,15 +54,12 @@ class SvParser:
     get_typedef_declarations,\
     get_custom_declarations,\
     get_all_brackets,\
-    get_module_instances,\
-    get_module_instances_without_parameters,\
-    get_module_instances_with_parameters
+    get_submodule_instances,\
+    get_submodule_instances_without_parameters,\
+    get_submodule_instances_with_parameters,\
+    detect_submodule
 
   from sv_rtl_tree import\
-    list_all_modules,\
-    print_all_modules,\
-    find_top_modules,\
-    print_top_modules,\
     rtl_tree,\
     rtl_branch
 
@@ -74,13 +74,30 @@ class SvParser:
     format_typedef_declarations,\
     format_custom_declarations
 
+  from sv_print import\
+    print_all_modules,\
+    print_top_modules
+
+  from sv_module_list import\
+    get_all_module_names,\
+    find_top_modules,\
+    list_all_modules,\
+    get_modules_in_folder
+
+# ------------------------------------------------------------------------------
+#
+# ------------------------------------------------------------------------------
   def __init__(self, yml_rules):
+
+    self.debug = 2
+    self.load_cfg()
     self.rules = rulebook.RuleBook()
     self.rules.load_rules(yml_rules)
     #self.rules.print_rules()
-    self.load_cfg()
-    self.list_all_modules(self.module_path)
-    self.print_all_modules()
+
+    self.list_all_modules(self.cfg_module_root)
+    self.print_all_modules(table=True)
+    self.print_all_modules(print_sub=True)
 
     print("\n")
     print("INFO [__init__] Created")
@@ -94,7 +111,7 @@ class SvParser:
 
     # Default configuration values
     self.module_paths = []
-    self.search_paths = False
+    self.cfg_search_paths = False
 
     # The config file should be local to this script
     cfg_file = os.path.join(sys.path[0], "config.yml")
@@ -112,9 +129,9 @@ class SvParser:
     # Append the seach paths and replace any git root string
     _module_path = self.rules["module_paths"]["value"]
     _git_root    = self.get_git_root()
-    self.module_path = _module_path.replace("${git_root}", _git_root)
+    self.cfg_module_root = _module_path.replace("${git_root}", _git_root)
 
-    self.search_paths = self.rules["search_paths"]["value"]
+    self.cfg_search_paths = self.rules["search_paths"]["value"]
 
-    print("module_path  = %s" % self.module_path)
-    print("search_paths = %s" % self.search_paths)
+    print("cfg_module_root  = %s" % self.cfg_module_root)
+    print("cfg_search_paths = %s" % self.cfg_search_paths)

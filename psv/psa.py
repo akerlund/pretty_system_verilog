@@ -36,6 +36,8 @@ def psv():
   rtl_tree(svparser, os.getcwd())
   #pretty(svparser)
 
+  #detect_submodule(svparser)
+
 def pretty(svparser):
   svparser.pretty("/home/erland/Documents/pretty_system_verilog/psv/rtl/top.sv")
 
@@ -50,16 +52,17 @@ def find_rtl_folders(svparser):
   for f in found:
     print(f)
 
-def get_module_instances(svparser):
-  found = svparser.get_module_instances()
+def detect_submodule(svparser):
+
+  svparser.load_sv_file("/mnt/work/freake/zip_dev/modules/ziptilion/rtl/ziptilion_core.sv")
+  found = svparser.detect_submodule()
   for f in found:
 
-    instantiation = f[0]
+    _instantiation = f[0]
     module_type   = f[1]
     instance_name = f[2]
 
-    print("\n\nThis is %s of type %s:" % (instance_name, module_type))
-    print(instantiation)
+    print("%s %s" % (module_type, instance_name))
 
 def get_assign_declarations(svparser):
   found = svparser.get_assign_declarations()

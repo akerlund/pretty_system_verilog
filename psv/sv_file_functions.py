@@ -22,6 +22,9 @@
 import os, re
 import subprocess
 
+# ------------------------------------------------------------------------------
+#
+# ------------------------------------------------------------------------------
 def load_sv_file(self, file_path):
   with open(file_path, 'r') as file:
     self.current_file = file_path
@@ -30,6 +33,9 @@ def load_sv_file(self, file_path):
     self.flat         = self.remove_comments('\n'.join(self.svf))
 
 
+# ------------------------------------------------------------------------------
+#
+# ------------------------------------------------------------------------------
 def find_rtl_folders(self, top):
   rtl_folders = []
   for root, dirs, _ in os.walk(top, topdown=False):
@@ -39,6 +45,9 @@ def find_rtl_folders(self, top):
   return rtl_folders
 
 
+# ------------------------------------------------------------------------------
+#
+# ------------------------------------------------------------------------------
 def find_sv_files(self, top, exclude_pkg = 0):
   sv_files = []
   for f in os.listdir(top):
@@ -49,22 +58,37 @@ def find_sv_files(self, top, exclude_pkg = 0):
   return sv_files
 
 
+# ------------------------------------------------------------------------------
+#
+# ------------------------------------------------------------------------------
 def is_directory(self, dir_path):
   return os.path.isdir(dir_path)
 
 
+# ------------------------------------------------------------------------------
+#
+# ------------------------------------------------------------------------------
 def make_directory(self, dir_path):
   os.mkdir(dir_path)
 
 
+# ------------------------------------------------------------------------------
+#
+# ------------------------------------------------------------------------------
 def file_exists(self, file_path):
   return os.path.isfile(file_path)
 
 
+# ------------------------------------------------------------------------------
+#
+# ------------------------------------------------------------------------------
 def get_git_root(self):
   return subprocess.Popen(['git', 'rev-parse', '--show-toplevel'],
                            stdout=subprocess.PIPE).communicate()[0].rstrip().decode('utf-8')
 
+# ------------------------------------------------------------------------------
+#
+# ------------------------------------------------------------------------------
 def remove_comments(self, string):
   # remove all occurrences streamed comments (/*COMMENT */) from string
   string = re.sub(re.compile(r"/\*.*?\*/",re.DOTALL), "",string)

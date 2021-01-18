@@ -43,3 +43,7 @@ top_module
         ├── submodule03
         └── submodule03
 ```
+
+# Known Issues
+- Excludes package files only by looking at the file ending "_pkg.sv"
+- 
