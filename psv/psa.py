@@ -30,13 +30,9 @@ def psv():
   # The rules file should be local to this script
   rules_file = os.path.join(sys.path[0], "rules.yml")
 
+  # Create the parser
   svparser = sv_parser.SvParser(rules_file)
 
-  # Get the Git root
-  git_root = svparser.get_git_root()
-
-  #svparser.load_sv_file(git_root + "/psv/rtl/top.sv")
-  _m_folder = git_root + "/psv"
   rtl_tree(svparser, os.getcwd())
   #pretty(svparser)
 

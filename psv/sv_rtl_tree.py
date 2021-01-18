@@ -35,6 +35,11 @@ def list_all_modules(self, root_folder, is_pwd=False):
   else:
     self.all_modules = {}
 
+  # Also list interfaces and modports
+  if not is_pwd:
+    self.all_interfaces = []
+    self.all_modports   = []
+
   # Find all System Verilog files
   for _f in _rtl_folders:
     sv_files = self.find_sv_files(_f, exclude_pkg=1)
@@ -66,6 +71,15 @@ def list_all_modules(self, root_folder, is_pwd=False):
             _all_modules[module_name].append((module_type, instance_name))
           else:
             self.all_modules[module_name].append((module_type, instance_name))
+        else:
+          if module_type == "interface":
+            print("interface: %s" % instance_name)
+            self.all_interfaces.append(instance_name)
+          elif module_type == "modport":
+            self.all_interfaces.append(instance_name)
+            print("modport: %s" % instance_name)
+          else:
+            print("TODO [list_all_modules] Fix so that I do not detect(%s)" % module_type)
 
   if is_pwd:
     return _all_modules
@@ -79,7 +93,7 @@ def print_all_modules(self):
 
   for key in self.all_modules:
     sub = self.all_modules[key]
-    print("\n\nModule: " + key)
+    print(key + ":")
     if not len(sub):
       print("  - No submodules")
     else:
@@ -171,7 +185,8 @@ def rtl_branch(self, name, parent_id, instance_name, hier_nr, print_instance=0):
 
   for i in range(len(self.all_modules[name])):
     _m, _i = self.all_modules[name][i]
-    self.rtl_branch(_m, _node_id, _i, hier_nr+1, print_instance)
+    if _m not in self.all_interfaces and _m != "riq_entry_t":
+      self.rtl_branch(_m, _node_id, _i, hier_nr+1, print_instance)
 
 
 def rtl_tree(self, pwd, instance_name=0):
@@ -197,6 +212,7 @@ def rtl_tree(self, pwd, instance_name=0):
 
   for i in range(len(self.all_modules[_rtl_top])):
     _m, _i = self.all_modules[_rtl_top][i]
-    self.rtl_branch(_m, 0, _i, 1, True)
+    if _m not in self.all_interfaces:
+      self.rtl_branch(_m, 0, _i, 1, True)
 
   self.tree.show()

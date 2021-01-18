@@ -34,7 +34,8 @@ class SvParser:
     is_directory,\
     make_directory,\
     file_exists,\
-    get_git_root
+    get_git_root,\
+    remove_comments
 
   from sv_get import\
     get_always_ff,\

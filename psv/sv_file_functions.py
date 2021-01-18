@@ -19,14 +19,15 @@
 ##
 ################################################################################
 
-import os
+import os, re
 import subprocess
 
 def load_sv_file(self, file_path):
   with open(file_path, 'r') as file:
     self.current_file = file_path
     self.svf          = file.read().split('\n')
-    self.flat         = ''.join(self.svf)
+    # A flat string of the file with no comments for easy regexp-ing
+    self.flat         = self.remove_comments('\n'.join(self.svf))
 
 
 def find_rtl_folders(self, top):
@@ -63,3 +64,10 @@ def file_exists(self, file_path):
 def get_git_root(self):
   return subprocess.Popen(['git', 'rev-parse', '--show-toplevel'],
                            stdout=subprocess.PIPE).communicate()[0].rstrip().decode('utf-8')
+
+def remove_comments(self, string):
+  # remove all occurrences streamed comments (/*COMMENT */) from string
+  string = re.sub(re.compile(r"/\*.*?\*/",re.DOTALL), "",string)
+  # remove all occurrence single-line comments (//COMMENT\n ) from string
+  string = re.sub(re.compile(r"//.*?\n" ), "", string)
+  return string

@@ -170,6 +170,7 @@ def get_module_instances_without_parameters(self):
   for m in re.findall(e, self.flat):
     module_type = m[1]
     if module_type != "module":
+      print(m[1])
       mod.append(m)
   return mod
 
@@ -180,5 +181,6 @@ def get_module_instances_with_parameters(self):
   for m in re.findall(e, self.flat):
     module_type = m[1]
     if module_type != "module":
+      print(m[1])
       mod.append(m)
   return mod
