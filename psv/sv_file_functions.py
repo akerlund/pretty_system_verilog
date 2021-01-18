@@ -20,6 +20,7 @@
 ################################################################################
 
 import os
+import subprocess
 
 def load_sv_file(self, file_path):
   with open(file_path, 'r') as file:
@@ -45,3 +46,20 @@ def find_sv_files(self, top, exclude_pkg = 0):
         if not f.endswith("_pkg.sv"):
           sv_files.append(top+'/'+f)
   return sv_files
+
+
+def is_directory(self, dir_path):
+  return os.path.isdir(dir_path)
+
+
+def make_directory(self, dir_path):
+  os.mkdir(dir_path)
+
+
+def file_exists(self, file_path):
+  return os.path.isfile(file_path)
+
+
+def get_git_root(self):
+  return subprocess.Popen(['git', 'rev-parse', '--show-toplevel'],
+                           stdout=subprocess.PIPE).communicate()[0].rstrip().decode('utf-8')

@@ -21,23 +21,30 @@
 ##
 ################################################################################
 
-import sys
+import os, sys
 import sv_parser
 
 # Pretty System Verilog
 def psv():
 
-  svparser = sv_parser.SvParser("/home/erland/Documents/pretty_system_verilog/psv/rules.yml")
-  svparser.load_sv_file("/home/erland/Documents/pretty_system_verilog/psv/rtl/top.sv")
+  # The rules file should be local to this script
+  rules_file = os.path.join(sys.path[0], "rules.yml")
 
-  rtl_tree(svparser)
+  svparser = sv_parser.SvParser(rules_file)
+
+  # Get the Git root
+  git_root = svparser.get_git_root()
+
+  #svparser.load_sv_file(git_root + "/psv/rtl/top.sv")
+  _m_folder = git_root + "/psv"
+  rtl_tree(svparser, os.getcwd())
   #pretty(svparser)
 
 def pretty(svparser):
   svparser.pretty("/home/erland/Documents/pretty_system_verilog/psv/rtl/top.sv")
 
-def rtl_tree(svparser):
-  svparser.rtl_tree("/home/erland/Documents/pretty_system_verilog/psv")
+def rtl_tree(svparser, pwd):
+  svparser.rtl_tree(pwd)
 
 def list_all_modules(svparser):
   svparser.list_all_modules("/home/erland/Documents/pretty_system_verilog/psv")

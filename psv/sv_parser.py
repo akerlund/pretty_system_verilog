@@ -21,14 +21,20 @@
 ##
 ################################################################################
 
+import os, sys
 import rulebook
+import yaml
 
 class SvParser:
 
   from sv_file_functions import\
     load_sv_file,\
     find_rtl_folders,\
-    find_sv_files
+    find_sv_files,\
+    is_directory,\
+    make_directory,\
+    file_exists,\
+    get_git_root
 
   from sv_get import\
     get_always_ff,\
@@ -71,8 +77,43 @@ class SvParser:
     self.rules = rulebook.RuleBook()
     self.rules.load_rules(yml_rules)
     #self.rules.print_rules()
+    self.load_cfg()
+    self.list_all_modules(self.module_path)
+    self.print_all_modules()
+
+    print("\n")
+    print("INFO [__init__] Created")
 
   def pretty(self, sv_file):
 
     self.load_sv_file(sv_file)
     self.format_file()
+
+  def load_cfg(self):
+
+    # Default configuration values
+    self.module_paths = []
+    self.search_paths = False
+
+    # The config file should be local to this script
+    cfg_file = os.path.join(sys.path[0], "config.yml")
+
+    # Default if the file does not exist
+    if not self.file_exists(cfg_file):
+      print("ERROR [load_cfg] Config file not found")
+      return -1
+
+    # Open the file
+    with open(cfg_file, 'r') as _file:
+      _fh = yaml.load(_file, Loader = yaml.FullLoader)
+      _, self.rules = list(_fh.items())[0]
+
+    # Append the seach paths and replace any git root string
+    _module_path = self.rules["module_paths"]["value"]
+    _git_root    = self.get_git_root()
+    self.module_path = _module_path.replace("${git_root}", _git_root)
+
+    self.search_paths = self.rules["search_paths"]["value"]
+
+    print("module_path  = %s" % self.module_path)
+    print("search_paths = %s" % self.search_paths)

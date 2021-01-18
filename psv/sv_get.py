@@ -163,6 +163,7 @@ def get_module_instances(self):
   return self.get_module_instances_without_parameters() +\
          self.get_module_instances_with_parameters()
 
+
 def get_module_instances_without_parameters(self):
   e = r'((\w+)\s+(\w+)\s*\(([.|\w|\s|,|\/|\)|\(]*)\);)'
   mod = []
@@ -171,6 +172,7 @@ def get_module_instances_without_parameters(self):
     if module_type != "module":
       mod.append(m)
   return mod
+
 
 def get_module_instances_with_parameters(self):
   e = r'((\w+)\s*#\s*\([.|\w|\s|,|\/|\)|\(]*\)(\s*\w+\s*)\([.|\w|\s|,|\/|\)|\(]*\);)'
