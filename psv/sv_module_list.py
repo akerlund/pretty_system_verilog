@@ -19,6 +19,7 @@
 ##
 ################################################################################
 
+import time
 import sv_keywords
 
 # ------------------------------------------------------------------------------
@@ -33,11 +34,14 @@ def list_all_modules(self, root_folder):
   self.all_interfaces = []
   self.all_modports   = []
 
+  print("INFO [get_all_module_names] Acquiring all submodules ...")
+  _start_time = time.time()
+
   # Find all System Verilog files
   for _rtl_folder in self.find_rtl_folders(root_folder):
 
     if self.debug >= 2:
-      print("DEBUG [list_all_modules] Scanning for files in %s" % _rtl_folder)
+      print("DEBUG [list_all_modules] Scanning for files in (%s)" % _rtl_folder)
 
     sv_files = self.find_sv_files(_rtl_folder, exclude_pkg=1)
 
@@ -50,15 +54,11 @@ def list_all_modules(self, root_folder):
       # Get the module's name
       module_name = self.get_module(only_name=1)
 
-      print("Submodules of %s" % module_name)
-
       # Get the submodules in the module and iterate them
       for _sub in self.detect_submodule(module_name):
 
         _module_type   = _sub[0]
         _instance_name = _sub[1]
-
-        print(_module_type)
 
         _m_ok = (not _module_type in sv_keywords.sv_keywords)
 
@@ -74,11 +74,16 @@ def list_all_modules(self, root_folder):
           else:
             print("WARNING [detect_submodule] Incorrect type, a SV key: (%s)" % _module_type)
 
+  print("INFO [get_all_module_names] Completed in (%s) seconds" % "{:.3f}".format((time.time() - _start_time)))
+
 
 # ------------------------------------------------------------------------------
 #
 # ------------------------------------------------------------------------------
 def get_all_module_names(self, root_folder):
+
+  print("INFO [get_all_module_names] Acquiring all module names ...")
+  _start_time = time.time()
 
   self.all_modules = {}
 
@@ -93,13 +98,13 @@ def get_all_module_names(self, root_folder):
       # Get the module's name
       _m_name = self.get_module(only_name=1)
 
+      # Check the length because a file does not need to have a module
       if len(_m_name):
         # Instance the dictionary with an empty list which is to be filled
         # with the submodules types and instance names
         self.all_modules[_m_name] = []
-      else:
-        print("WARNING [get_all_module_names] Detected a zero long module name in file:\n  %s" % _sv_file)
 
+  print("INFO [get_all_module_names] Completed in (%s) seconds" % "{:.3f}".format((time.time() - _start_time)))
 
 # ------------------------------------------------------------------------------
 #

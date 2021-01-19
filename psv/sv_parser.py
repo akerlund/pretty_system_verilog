@@ -89,18 +89,20 @@ class SvParser:
 # ------------------------------------------------------------------------------
   def __init__(self, yml_rules):
 
-    self.debug = 2
+    self.debug = 0
     self.load_cfg()
     self.rules = rulebook.RuleBook()
     self.rules.load_rules(yml_rules)
     #self.rules.print_rules()
 
     self.list_all_modules(self.cfg_module_root)
-    self.print_all_modules(table=True)
-    self.print_all_modules(print_sub=True)
+    #self.print_all_modules(table=True)
+    #self.print_all_modules(print_sub=True)
 
     print("\n")
-    print("INFO [__init__] Created")
+
+    if self.debug >= 1:
+      print("INFO [__init__] Created")
 
   def pretty(self, sv_file):
 
@@ -129,9 +131,8 @@ class SvParser:
     # Append the seach paths and replace any git root string
     _module_path = self.rules["module_paths"]["value"]
     _git_root    = self.get_git_root()
-    self.cfg_module_root = _module_path.replace("${git_root}", _git_root)
 
-    self.cfg_search_paths = self.rules["search_paths"]["value"]
+    self.cfg_module_root   = _module_path.replace("${git_root}", _git_root)
+    self.cfg_search_paths  = self.rules["search_paths"]["value"]
+    self.cfg_tree_max_tops = 1
 
-    print("cfg_module_root  = %s" % self.cfg_module_root)
-    print("cfg_search_paths = %s" % self.cfg_search_paths)

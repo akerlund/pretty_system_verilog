@@ -44,6 +44,6 @@ top_module
         └── submodule03
 ```
 
-# Known Issues
+## Known Issues
 - Excludes package files only by looking at the file ending "_pkg.sv"
-- 
+- For generate: only one instance is printed

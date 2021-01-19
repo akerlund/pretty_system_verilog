@@ -19,12 +19,13 @@
 ##
 ################################################################################
 
+import time
 from treelib import Node, Tree
 
 # ------------------------------------------------------------------------------
 #
 # ------------------------------------------------------------------------------
-def rtl_branch(self, name, parent_id, instance_name, hier_nr, print_instance=0):
+def rtl_branch(self, name, parent_id, instance_name, hier_nr, print_instance=False):
 
   _node_id = self.tree_counter
   self.tree_counter += 1
@@ -38,7 +39,7 @@ def rtl_branch(self, name, parent_id, instance_name, hier_nr, print_instance=0):
 
   for i in range(len(self.all_modules[name])):
     _m, _i = self.all_modules[name][i]
-    if _m not in self.all_interfaces and _m != "riq_entry_t":
+    if _m not in self.all_interfaces:
       self.rtl_branch(_m, _node_id, _i.strip(), hier_nr+1, print_instance)
 
 
@@ -48,18 +49,24 @@ def rtl_branch(self, name, parent_id, instance_name, hier_nr, print_instance=0):
 def rtl_tree(self, pwd, instance_name=0):
 
   _pwd_tops = self.find_top_modules(pwd)
-  print("_pwd_tops: ")
-  print(_pwd_tops)
 
-  _max_tops = 1
-  if len(self.tops) > _max_tops:
-    print("ERROR [rtl_tree] More than (%d) top module found!" % _max_tops)
+  if self.debug >= 1:
+    print("DEBUG [rtl_tree]Top modules in the selected directory:")
+    for _t in _pwd_tops:
+      print(_t)
+
+
+  if len(self.tops) > self.cfg_tree_max_tops:
+    print("ERROR [rtl_tree] More than (%d) top module found!" % self.cfg_tree_max_tops)
     return -1
 
   _rtl_top = _pwd_tops[0]
 
+  print("INFO [rtl_tree] Creating the tree ...")
+  _start_time = time.time()
+
   print(80*'-')
-  print("RTL Tree of \"%s\"" % _rtl_top)
+  print("- RTL Tree of \"%s\"" % _rtl_top)
   print(80*'-')
 
   self.tree = Tree()
@@ -72,3 +79,5 @@ def rtl_tree(self, pwd, instance_name=0):
       self.rtl_branch(_m, 0, _i.strip(), 1, True)
 
   self.tree.show()
+
+  print("INFO [rtl_tree] Completed in (%s) seconds" % "{:.3f}".format((time.time() - _start_time)))

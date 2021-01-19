@@ -74,7 +74,6 @@ def get_module(self, only_name = 0):
         return name
 
   if _i == -1:
-    print("ERROR [module] No module found in file (%s)", self.current_file)
     return ""
 
   for i in range(len(self.svf)):
@@ -246,21 +245,15 @@ def detect_submodule(self, top_type):
   for m in re.findall(e0, self.flat):
 
     module_type = m[0]
-
     if module_type in self.all_modules.keys():
-      if module_type == top_type:
-        print("WARNING [detect_submodule] Recursive add: (%s)" % module_type)
-      else:
+      if module_type != top_type:
         mod.append(m)
 
   for m in re.findall(e1, self.flat):
 
     module_type = m[0]
-
     if module_type in self.all_modules.keys():
-      if module_type == top_type:
-        print("WARNING [detect_submodule] Recursive add: (%s)" % module_type)
-      else:
+      if module_type != top_type:
         mod.append(m)
 
 
