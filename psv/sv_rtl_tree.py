@@ -50,8 +50,8 @@ def rtl_tree(self, pwd, instance_name=0):
 
   _pwd_tops = self.find_top_modules(pwd)
 
-  if self.debug >= 1:
-    print("DEBUG [rtl_tree]Top modules in the selected directory:")
+  if self.verbosity >= 1000:
+    print("DEBUG [rtl_tree] Top modules in the selected directory:")
     for _t in _pwd_tops:
       print(_t)
 
@@ -61,9 +61,6 @@ def rtl_tree(self, pwd, instance_name=0):
     return -1
 
   _rtl_top = _pwd_tops[0]
-
-  print("INFO [rtl_tree] Creating the tree ...")
-  _start_time = time.time()
 
   print(80*'-')
   print("- RTL Tree of \"%s\"" % _rtl_top)
@@ -79,5 +76,3 @@ def rtl_tree(self, pwd, instance_name=0):
       self.rtl_branch(_m, 0, _i.strip(), 1, True)
 
   self.tree.show()
-
-  print("INFO [rtl_tree] Completed in (%s) seconds" % "{:.3f}".format((time.time() - _start_time)))

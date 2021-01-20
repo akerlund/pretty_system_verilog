@@ -92,8 +92,8 @@ def get_git_root(self):
 #
 # ------------------------------------------------------------------------------
 def remove_comments(self, string):
-  # remove all occurrences streamed comments (/*COMMENT */) from string
+  # Remove all occurrences streamed comments (/*COMMENT */) from string
   string = re.sub(re.compile(r"/\*.*?\*/",re.DOTALL), "",string)
-  # remove all occurrence single-line comments (//COMMENT\n ) from string
+  # Remove all occurrence single-line comments (//COMMENT\n ) from string
   string = re.sub(re.compile(r"//.*?\n" ), "", string)
   return string

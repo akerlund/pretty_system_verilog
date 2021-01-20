@@ -54,9 +54,6 @@ class SvParser:
     get_typedef_declarations,\
     get_custom_declarations,\
     get_all_brackets,\
-    get_submodule_instances,\
-    get_submodule_instances_without_parameters,\
-    get_submodule_instances_with_parameters,\
     detect_submodule
 
   from sv_rtl_tree import\
@@ -79,17 +76,17 @@ class SvParser:
     print_top_modules
 
   from sv_module_list import\
-    get_all_module_names,\
-    find_top_modules,\
     list_all_modules,\
-    get_modules_in_folder
+    get_modules_in_folder,\
+    find_top_modules
 
 # ------------------------------------------------------------------------------
 #
 # ------------------------------------------------------------------------------
   def __init__(self, yml_rules):
 
-    self.debug = 0
+    self.debug     = 0
+    self.verbosity = 1
     self.load_cfg()
     self.rules = rulebook.RuleBook()
     self.rules.load_rules(yml_rules)

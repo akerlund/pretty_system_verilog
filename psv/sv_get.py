@@ -199,41 +199,6 @@ def get_all_brackets(self, row):
 # ------------------------------------------------------------------------------
 #
 # ------------------------------------------------------------------------------
-def get_submodule_instances(self, top_type):
-  # TODO: Add support for ';' in comments
-  return self.get_submodule_instances_without_parameters(top_type) +\
-         self.get_submodule_instances_with_parameters(top_type)
-
-
-# ------------------------------------------------------------------------------
-#
-# ------------------------------------------------------------------------------
-def get_submodule_instances_without_parameters(self, top_type):
-  e = r'((\w+)\s+(\w+)\s*\(([.|\w|\s|,|\/|\)|\(]*)\);)'
-  mod = []
-  for m in re.findall(e, self.flat):
-    module_type = m[1]
-    if module_type in self.all_modules.keys():
-      if module_type != top_type:
-        mod.append(m)
-  return mod
-
-
-# ------------------------------------------------------------------------------
-#
-# ------------------------------------------------------------------------------
-def get_submodule_instances_with_parameters(self, top_type):
-  # ((\w+)\s*#\s*\([\w\W]+?(?=\)\s*\;))
-  e = r'((\w+)\s*#\s*\(\s*.+[\w\W]*\)(\s*\w+\s*)\(\s*.+[\w\W]*\);)'
-  mod = []
-  for m in re.findall(e, self.flat):
-    module_type = m[1]
-    if module_type in self.all_modules.keys():
-      if module_type != top_type:
-        mod.append(m)
-  return mod
-
-
 def detect_submodule(self, top_type):
 
   mod = []
@@ -243,9 +208,8 @@ def detect_submodule(self, top_type):
       if sub_type != top_type:
         mod.append(m)
 
-
   # These expressions stops after a found instance name
-  # First is for without parameters and the second with
+  # First (e0) is for without parameters and the second (e1) with parameters
   e0 = r'\n+\s*(\w+)\s+(\w+)\s*\([\s.\w_(),/[\]]*\)\s*;'
   e1 = r"\n+\s*(\w+)\s*#\s*\([\s.\w_(),/[\]]*\)\s*\)\s*(\w+)\s*\("
 

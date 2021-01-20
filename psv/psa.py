@@ -21,21 +21,25 @@
 ##
 ################################################################################
 
-import os, sys
+import os, sys, time
 import sv_parser
 
 # Pretty System Verilog
 def psv():
 
+  _start_time = time.time()
+
   # The rules file should be local to this script
-  rules_file = os.path.join(sys.path[0], "rules.yml")
+  rules_file  = os.path.join(sys.path[0], "rules.yml")
 
   # Create the parser
   svparser = sv_parser.SvParser(rules_file)
 
+  # Create the RTL tree
   rtl_tree(svparser, os.getcwd())
   #svparser.print_all_modules()
 
+  print("INFO [rtl_tree] Completed in (%s) seconds" % "{:.3f}".format((time.time() - _start_time)))
 
 
   #pretty(svparser)

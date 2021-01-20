@@ -38,17 +38,19 @@ def list_all_modules(self, root_folder):
   self.all_modules    = {}
   self.all_interfaces = []
 
-  print("INFO [get_all_module_names] Acquiring all submodules ...")
-  _start_time = time.time()
+  if self.verbosity >= 2:
+    print("INFO [list_all_modules] Acquiring all submodules ...")
+    _start_time = time.time()
 
 
   # Iterate all the found System Verilog files
   _i = 1
   for sv in _all_sv_files:
 
-    sys.stdout.write("\rProcessing file (%d/%d): %s\x1b[K" % (_i, _nr_of_files, sv))
-    sys.stdout.flush()
-    _i += 1
+    if self.verbosity >= 2:
+      sys.stdout.write("\rProcessing file (%d/%d): %s\x1b[K" % (_i, _nr_of_files, sv))
+      sys.stdout.flush()
+      _i += 1
 
     # Load the file
     self.load_sv_file(sv)
@@ -60,7 +62,7 @@ def list_all_modules(self, root_folder):
     if len(_module_name):
 
       if _module_name in self.all_modules.keys():
-        print("WARNING [get_all_module_names] Module (%s) already found, skipping" % _module_name)
+        print("WARNING [list_all_modules] Module (%s) already found, skipping" % _module_name)
       else:
 
         # Initialize dictionary
@@ -87,52 +89,11 @@ def list_all_modules(self, root_folder):
             #else:
             #  print("WARNING [detect_submodule] Incorrect type, a SV key: (%s)" % _module_type)
 
-  print('\n')
-  print("INFO [get_all_module_names] Completed in (%s) seconds" % "{:.3f}".format((time.time() - _start_time)))
-  print("INFO [get_all_module_names] Nr of modules:    (%s)" % len(self.all_modules))
-  print("INFO [get_all_module_names] Nr of interfaces: (%s)" % len(self.all_interfaces))
-
-
-# ------------------------------------------------------------------------------
-#
-# ------------------------------------------------------------------------------
-def get_all_module_names(self, root_folder):
-
-  print("INFO [get_all_module_names] Acquiring all module names ...")
-  _start_time = time.time()
-
-  self.all_modules = {}
-
-  _nr_of_files = 0
-  # Find all System Verilog files
-  for _f in self.find_rtl_folders(root_folder):
-    _nr_of_files += len(self.find_sv_files(_f, exclude_pkg=1))
-
-  # Iterate all System Verilog files
-  _i = 1
-  for _f in self.find_rtl_folders(root_folder):
-
-    # Load one System Verilog file at the time
-    for _sv_file in self.find_sv_files(_f, exclude_pkg=1):
-
-      sys.stdout.write("\rProcessing file (%d/%d): %s\x1b[K" % (_i, _nr_of_files, _sv_file))
-      sys.stdout.flush()
-      _i += 1
-
-      self.load_sv_file(_sv_file)
-
-      # Get the module's name
-      _m_name = self.get_module(only_name=1)
-
-      # Check the length because a file does not need to have a module
-      if len(_m_name):
-        # Instance the dictionary with an empty list which is to be filled
-        # with the submodules types and instance names
-        self.all_modules[_m_name] = []
-
-  print('\n')
-  print("INFO [get_all_module_names] Completed in (%s) seconds" % "{:.3f}".format((time.time() - _start_time)))
-  return _nr_of_files
+  if self.verbosity >= 2:
+    print('\n')
+    print("INFO [list_all_modules] Completed in (%s) seconds" % "{:.3f}".format((time.time() - _start_time)))
+    print("INFO [list_all_modules] Nr of modules:    (%s)" % len(self.all_modules))
+    print("INFO [list_all_modules] Nr of interfaces: (%s)" % len(self.all_interfaces))
 
 
 # ------------------------------------------------------------------------------
@@ -179,12 +140,12 @@ def find_top_modules(self, pwd = ""):
   if _pwd:
     _pwd_m = self.get_modules_in_folder(pwd)
 
-    # Debug print
-    if False:
-      self.print_all_modules()
-      print("Local modules in (%s):" % pwd)
-      for _key in _pwd_m:
-        print(_key)
+
+  if self.verbosity >= 1000:
+    self.print_all_modules()
+    print("DEBUG [find_top_modules] Local modules in (%s):" % pwd)
+    for _key in _pwd_m:
+      print(_key)
 
   # Decide which module list to use and find top modules in
   if _pwd:
@@ -212,6 +173,11 @@ def find_top_modules(self, pwd = ""):
           self.tops_n.append(_k0)
         else:
           _tops.append(_k0)
+
+  if self.verbosity >= 1000:
+    print("DEBUG [find_top_modules] Top modules in the selected directory:")
+    for _t in _tops:
+      print(_t)
 
   # Local gives a return
   if _pwd:
