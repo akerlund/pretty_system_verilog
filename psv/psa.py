@@ -34,8 +34,11 @@ def psv():
   svparser = sv_parser.SvParser(rules_file)
 
   rtl_tree(svparser, os.getcwd())
-  #pretty(svparser)
+  #svparser.print_all_modules()
 
+
+
+  #pretty(svparser)
   #detect_submodule(svparser)
 
 def pretty(svparser):
@@ -59,8 +62,8 @@ def detect_submodule(svparser):
   for f in found:
 
     _instantiation = f[0]
-    module_type   = f[1]
-    instance_name = f[2]
+    module_type    = f[1]
+    instance_name  = f[2]
 
     print("%s %s" % (module_type, instance_name))
 

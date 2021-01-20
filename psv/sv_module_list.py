@@ -19,7 +19,7 @@
 ##
 ################################################################################
 
-import time
+import time, sys
 import sv_keywords
 
 # ------------------------------------------------------------------------------
@@ -27,54 +27,70 @@ import sv_keywords
 # ------------------------------------------------------------------------------
 def list_all_modules(self, root_folder):
 
-  # This function will instantiate the dictionary "self.all_modules"
-  self.get_all_module_names(root_folder)
+  # Find all System Verilog files
+  _all_sv_files = []
+  for _f in self.find_rtl_folders(root_folder):
+    _all_sv_files += self.find_sv_files(_f, exclude_pkg=1)
+  _nr_of_files = len(_all_sv_files)
 
-  # Also list interfaces and modports
+
+  # Variables for modules and interfaces
+  self.all_modules    = {}
   self.all_interfaces = []
-  self.all_modports   = []
 
   print("INFO [get_all_module_names] Acquiring all submodules ...")
   _start_time = time.time()
 
-  # Find all System Verilog files
-  for _rtl_folder in self.find_rtl_folders(root_folder):
 
-    if self.debug >= 2:
-      print("DEBUG [list_all_modules] Scanning for files in (%s)" % _rtl_folder)
+  # Iterate all the found System Verilog files
+  _i = 1
+  for sv in _all_sv_files:
 
-    sv_files = self.find_sv_files(_rtl_folder, exclude_pkg=1)
+    sys.stdout.write("\rProcessing file (%d/%d): %s\x1b[K" % (_i, _nr_of_files, sv))
+    sys.stdout.flush()
+    _i += 1
 
-    # Iterate all the found System Verilog files
-    for sv in sv_files:
+    # Load the file
+    self.load_sv_file(sv)
 
-      # Load the file
-      self.load_sv_file(sv)
+    # Get the module's name
+    _module_name = self.get_module(only_name=1)
 
-      # Get the module's name
-      module_name = self.get_module(only_name=1)
+    # Check the length because a file does not need to have a module
+    if len(_module_name):
 
-      # Get the submodules in the module and iterate them
-      for _sub in self.detect_submodule(module_name):
+      if _module_name in self.all_modules.keys():
+        print("WARNING [get_all_module_names] Module (%s) already found, skipping" % _module_name)
+      else:
 
-        _module_type   = _sub[0]
-        _instance_name = _sub[1]
+        # Initialize dictionary
+        self.all_modules[_module_name] = []
 
-        _m_ok = (not _module_type in sv_keywords.sv_keywords)
+        # Get the submodules' in this module
+        for _sub in self.detect_submodule(_module_name):
 
-        if _m_ok:
-          self.all_modules[module_name].append((_module_type, _instance_name))
-        else:
-          if _module_type == "interface":
-            print("interface: %s" % _instance_name)
-            self.all_interfaces.append(_instance_name)
-          elif _module_type == "modport":
-            self.all_interfaces.append(_instance_name)
-            print("modport: %s" % _instance_name)
+          _module_type   = _sub[0]
+          _instance_name = _sub[1]
+
+          # Catches, e.g., "else", "task" and "module"
+          _m_ok = (not _module_type in sv_keywords.sv_keywords)
+
+          if _m_ok:
+            if _instance_name == "":
+              print("WARNING [list_all_modules] Found no instance name for (" + _module_name + "." + _module_type)
+            self.all_modules[_module_name].append((_module_type, _instance_name))
           else:
-            print("WARNING [detect_submodule] Incorrect type, a SV key: (%s)" % _module_type)
+            if _module_type == "interface":
+              print("interface: %s" % _instance_name)
+              self.all_interfaces.append(_instance_name)
+            # TODO: Perhaps improve so this does not occur
+            #else:
+            #  print("WARNING [detect_submodule] Incorrect type, a SV key: (%s)" % _module_type)
 
+  print('\n')
   print("INFO [get_all_module_names] Completed in (%s) seconds" % "{:.3f}".format((time.time() - _start_time)))
+  print("INFO [get_all_module_names] Nr of modules:    (%s)" % len(self.all_modules))
+  print("INFO [get_all_module_names] Nr of interfaces: (%s)" % len(self.all_interfaces))
 
 
 # ------------------------------------------------------------------------------
@@ -87,11 +103,21 @@ def get_all_module_names(self, root_folder):
 
   self.all_modules = {}
 
+  _nr_of_files = 0
   # Find all System Verilog files
+  for _f in self.find_rtl_folders(root_folder):
+    _nr_of_files += len(self.find_sv_files(_f, exclude_pkg=1))
+
+  # Iterate all System Verilog files
+  _i = 1
   for _f in self.find_rtl_folders(root_folder):
 
     # Load one System Verilog file at the time
     for _sv_file in self.find_sv_files(_f, exclude_pkg=1):
+
+      sys.stdout.write("\rProcessing file (%d/%d): %s\x1b[K" % (_i, _nr_of_files, _sv_file))
+      sys.stdout.flush()
+      _i += 1
 
       self.load_sv_file(_sv_file)
 
@@ -104,7 +130,10 @@ def get_all_module_names(self, root_folder):
         # with the submodules types and instance names
         self.all_modules[_m_name] = []
 
+  print('\n')
   print("INFO [get_all_module_names] Completed in (%s) seconds" % "{:.3f}".format((time.time() - _start_time)))
+  return _nr_of_files
+
 
 # ------------------------------------------------------------------------------
 #

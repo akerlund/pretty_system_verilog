@@ -39,7 +39,7 @@ def rtl_branch(self, name, parent_id, instance_name, hier_nr, print_instance=Fal
 
   for i in range(len(self.all_modules[name])):
     _m, _i = self.all_modules[name][i]
-    if _m not in self.all_interfaces:
+    if _m in self.all_modules:
       self.rtl_branch(_m, _node_id, _i.strip(), hier_nr+1, print_instance)
 
 
@@ -75,7 +75,7 @@ def rtl_tree(self, pwd, instance_name=0):
 
   for i in range(len(self.all_modules[_rtl_top])):
     _m, _i = self.all_modules[_rtl_top][i]
-    if _m not in self.all_interfaces:
+    if _m in self.all_modules:
       self.rtl_branch(_m, 0, _i.strip(), 1, True)
 
   self.tree.show()
