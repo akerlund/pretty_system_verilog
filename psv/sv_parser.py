@@ -91,10 +91,11 @@ class SvParser:
     if yml_rules:
       self.rules = rulebook.RuleBook()
       self.rules.load_rules(yml_rules)
+      #self.rules.print_rules()
 
-    #self.rules.print_rules()
-
+    # TODO: If no module path, set it to git repository
     self.list_all_modules(self.cfg_module_root)
+
     #self.print_all_modules(table=True)
     #self.print_all_modules(print_sub=True)
 
@@ -103,6 +104,7 @@ class SvParser:
 
     self.load_sv_file(sv_file)
     self.format_file()
+
 
   def load_cfg(self):
 

@@ -25,79 +25,6 @@ import os, sys, subprocess, time
 import argparse
 import sv_parser
 
-# Pretty System Verilog
-def psv():
-
-  _start_time = time.time()
-
-
-  format_file(svparser)
-  # Create the RTL tree
-  #rtl_tree(svparser, os.getcwd())
-  #svparser.print_all_modules()
-
-  print("INFO [rtl_tree] Completed in (%s) seconds" % "{:.3f}".format((time.time() - _start_time)))
-
-
-  #pretty(svparser)
-  #detect_submodule(svparser)
-
-def format_file(svparser):
-  git_root = svparser.get_git_root()
-  svparser.load_sv_file(git_root + "/psv/rtl/top.sv")
-  svparser.format_file()
-
-def pretty(svparser):
-  svparser.pretty("/home/erland/Documents/pretty_system_verilog/psv/rtl/top.sv")
-
-def rtl_tree(svparser, pwd):
-  svparser.rtl_tree(pwd)
-
-def list_all_modules(svparser):
-  svparser.list_all_modules("/home/erland/Documents/pretty_system_verilog/psv")
-
-def find_rtl_folders(svparser):
-  found = svparser.find_rtl_folders("/home/erland/Documents/pretty_system_verilog/psv")
-  for f in found:
-    print(f)
-
-def detect_submodule(svparser):
-
-  svparser.load_sv_file("/mnt/work/freake/zip_dev/modules/ziptilion/rtl/ziptilion_core.sv")
-  found = svparser.detect_submodule()
-  for f in found:
-
-    _instantiation = f[0]
-    module_type    = f[1]
-    instance_name  = f[2]
-
-    print("%s %s" % (module_type, instance_name))
-
-def get_assign_declarations(svparser):
-  found = svparser.get_assign_declarations()
-  for f in found:
-    print(' '.join(f))
-
-def get_logic_declarations(svparser):
-  found = svparser.get_logic_declarations()
-  for r, _ in found:
-    print(r)
-
-def get_module(svparser):
-  name, body = svparser.get_module()
-  print("name = \"" + name + "\"")
-  print(body)
-
-def get_always_comb(svparser):
-  found = svparser.get_always_comb()
-  for f in found:
-    print(f)
-
-def get_always_ff(svparser):
-  found = svparser.get_always_ff()
-  for f in found:
-    print(f)
-
 def get_git_root():
   _is_git = subprocess.Popen(['git', 'rev-parse', '--is-inside-work-tree'],
                            stdout=subprocess.PIPE).communicate()[0].rstrip().decode('utf-8')
@@ -111,6 +38,7 @@ def get_git_root():
 if __name__ == '__main__':
 
   _git = get_git_root()
+  _pwd = os.getcwd()
 
   parser = argparse.ArgumentParser()
   parser.add_argument("-e", "--example",   action="store_true",        help = "Print example command")
@@ -125,19 +53,23 @@ if __name__ == '__main__':
   # RTL Tree
   if args.rtl_tree:
     svparser = sv_parser.SvParser(verbosity=args.verbosity)
+    svparser.rtl_tree(_pwd)
 
   # Format a file
   elif args.file:
     rules_file = args.yml
 
+    # The file to format must exist
     if not os.path.isfile(args.file):
       print("ERROR [psv] File (%s) does not exist" % args.file)
       sys.exit(-1)
 
-    if not args.file.endswith("_pkg.sv"):
+    # The file must be System Verilog
+    if not args.file.endswith(".sv"):
       print("ERROR [psv] File [-f] must end with (.sv)" % args.file)
       sys.exit(-1)
 
+    # The rules file must exist TODO: Default?
     if not os.path.isfile(rules_file):
       rules_file = os.path.join(sys.path[0], "rules.yml")
       if not os.path.isfile(rules_file):

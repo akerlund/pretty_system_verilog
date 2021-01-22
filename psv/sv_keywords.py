@@ -20,13 +20,18 @@
 ################################################################################
 
 # ------------------------------------------------------------------------------
-#
+# To improve performance, the most commonly found (or believed to be found)
+# keywords are put first in the list
 # ------------------------------------------------------------------------------
 sv_keywords = [
+# Common
 "module",
+"if",
+"task",
+"begin",
 "always_ff",
 "always_comb",
-"begin",
+# Possible
 "bit",
 "break",
 "const",
@@ -41,7 +46,6 @@ sv_keywords = [
 "forkjoin",
 "function",
 "generate",
-"if",
 "iff",
 "import",
 "incdir",
@@ -56,7 +60,7 @@ sv_keywords = [
 "signed",
 "wire",
 "with",
-
+# Not decided or uncommon
 "alias",
 "always",
 "always_latch",
@@ -208,7 +212,6 @@ sv_keywords = [
 "supply1",
 "table",
 "tagged",
-"task",
 "this",
 "throughout",
 "time",

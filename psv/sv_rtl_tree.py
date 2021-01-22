@@ -23,7 +23,7 @@ import time
 from treelib import Node, Tree
 
 # ------------------------------------------------------------------------------
-#
+# A recursive function which generates branches of a module's all submodules
 # ------------------------------------------------------------------------------
 def rtl_branch(self, name, parent_id, instance_name, hier_nr, print_instance=False):
 
@@ -38,41 +38,46 @@ def rtl_branch(self, name, parent_id, instance_name, hier_nr, print_instance=Fal
   self.tree.create_node(_tag, str(_node_id), parent=str(parent_id), data=instance_name)
 
   for i in range(len(self.all_modules[name])):
-    _m, _i = self.all_modules[name][i]
-    if _m in self.all_modules:
-      self.rtl_branch(_m, _node_id, _i.strip(), hier_nr+1, print_instance)
+    _mod, _ins = self.all_modules[name][i]
+    if _mod in self.all_modules: # TODO: Still needed?
+      self.rtl_branch(_mod, _node_id, _ins.strip(), hier_nr+1, print_instance)
 
 
 # ------------------------------------------------------------------------------
-#
+# Generates the parent in the tree by finding the top module in the current
+# working directory, i.e., the path provided as the argument "pwd"
 # ------------------------------------------------------------------------------
-def rtl_tree(self, pwd, instance_name=0):
+def rtl_tree(self, pwd):
 
+  # Find all the top module and print them if verbosity is high
   _pwd_tops = self.find_top_modules(pwd)
-
   if self.verbosity >= 1000:
     print("DEBUG [rtl_tree] Top modules in the selected directory:")
     for _t in _pwd_tops:
       print(_t)
 
-
+  # How many tops that will be rendered is configurable
   if len(self.tops) > self.cfg_tree_max_tops:
     print("ERROR [rtl_tree] More than (%d) top module found!" % self.cfg_tree_max_tops)
     return -1
 
-  _rtl_top = _pwd_tops[0]
+  # Generate and print out the RTL Tree of all the tops
+  for t in range(len(self.tops)):
 
-  print(80*'-')
-  print("- RTL Tree of \"%s\"" % _rtl_top)
-  print(80*'-')
+    _rtl_top = _pwd_tops[t]
 
-  self.tree = Tree()
-  self.tree.create_node(_rtl_top, str(0))
-  self.tree_counter = 1
+    print(80*'-')
+    print("- RTL Tree of \"%s\"" % _rtl_top)
+    print(80*'-')
 
-  for i in range(len(self.all_modules[_rtl_top])):
-    _m, _i = self.all_modules[_rtl_top][i]
-    if _m in self.all_modules:
-      self.rtl_branch(_m, 0, _i.strip(), 1, True)
+    self.tree = Tree()
+    self.tree.create_node(_rtl_top, str(0))
+    self.tree_counter = 1
 
-  self.tree.show()
+    for i in range(len(self.all_modules[_rtl_top])):
+      _m, _i = self.all_modules[_rtl_top][i]
+      if _m in self.all_modules:
+        self.rtl_branch(_m, 0, _i.strip(), 1, True)
+
+    self.tree.show()
+    print('\n')
