@@ -62,29 +62,29 @@ def get_comment_pre_offset(self, offset):
 # ------------------------------------------------------------------------------
 def get_module(self, only_name = 0):
 
-  _i = -1
-  mod = ""
+  rexp_name = r'^\s*module (\w+)(\s*#?|\s*\(?)'
+  rexp_full = r'\n+\s*module\s*(\w+)\s*#\s*\(([\s\w_=^,\-+*[\]\/\"\'()$%`<>|&!~#.?{}:]*)\)\s*\((\s*[\s\w_=\-(),\/[\]:*"\']*\s*\));'
 
-  for i in range(len(self.svf)):
-    match = re.search(r'^\s*module (\w+)(\s*#?|\s*\(?)', self.svf[i])
+  if only_name:
+
+    match = re.search(rexp_name, self.flat)
+    _name = ""
     if match:
-      _i = i
-      name = match.group(1)
-      if only_name:
-        return name
+      _name = match.group(1)
+    return _name
 
-  if _i == -1:
-    return ""
+  else:
 
-  for i in range(len(self.svf)):
-    _row = self.svf[i].split("//")[0]
-    _f   = _row.find(");")
-    if _f >= 0:
-      mod += _row[:_f+2] + '\n' # All characters including ");"
-      break
-    mod += self.svf[i] + '\n'
-
-  return name, mod
+    # Matching parameterized modules
+    match = re.search(rexp_full, self.flat)
+    _type = ""
+    _para = ""
+    _body = ""
+    if match:
+      _type = match.group(1)
+      _para = match.group(2)
+      _body = match.group(3)
+    return _type, _para, _body
 
 
 # ------------------------------------------------------------------------------

@@ -1,3 +1,8 @@
+/* TODO:
+
+  Use ';' in comments
+
+*/
 /*
   Header one of module top_module #(
 */
@@ -11,9 +16,12 @@
 
 import some_pkg::*;
 
+import some_pkg::*;
+
+
 module top_module #(
   parameter int PARAMETER0_P  = -1,
-    parameter logic PARAMETER1_P  = -1,
+    parameter logic PARAMETER1_P  = -1, // " ' $ % ' ` + * < > | & ^ . { } # :
   parameter int PARAMETER2_P = -1
 )(
   // Clock and reset

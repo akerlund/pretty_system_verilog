@@ -25,12 +25,16 @@ import subprocess
 # ------------------------------------------------------------------------------
 #
 # ------------------------------------------------------------------------------
-def load_sv_file(self, file_path):
+def load_sv_file(self, file_path, rm_comments=True):
   with open(file_path, 'r') as file:
     self.current_file = file_path
     self.svf          = file.read().split('\n')
-    # A flat string of the file with no comments for easy regexp-ing
-    self.flat         = self.remove_comments('\n'.join(self.svf))
+    if rm_comments:
+      # A flat string of the file with no comments for easy regexp-ing
+      self.flat = self.remove_comments('\n'.join(self.svf))
+    else:
+      # Complete, for extracting and formating
+      self.flat = '\n'.join(self.svf)
 
 
 
