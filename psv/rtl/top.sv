@@ -1,6 +1,19 @@
+/*
+  Header one of module top_module #(
+*/
+// Header two of module top_module #(
+/**
+   Header three of module top_module #(
+  */
+
+  // Header four
+  // of module top_module #(
+
+import some_pkg::*;
+
 module top_module #(
   parameter int PARAMETER0_P  = -1,
-  parameter logic PARAMETER1_P  = -1,
+    parameter logic PARAMETER1_P  = -1,
   parameter int PARAMETER2_P = -1
 )(
   // Clock and reset
@@ -57,20 +70,30 @@ submodule01 submodule01_i0 (
 
 // FSM
 always_ff @(posedge clk or negedge rst_n) begin
-  if (!rst_n) begin
+  if ( !rst_n ) begin
     logic0 <= '0;
     logic1  <= '0;
   end
   else begin
-    if (logic2 ) begin
+
+    // Comment
+
+    if (logic2 ) // irritating comment
+    begin
       case (logic3)
-        0: begin
+        // Comment
+        0:
+        begin
           logic0 <= 42;
         end
         1: begin
-          logic1 <= logic0;
+          // Comment
+        logic1 <= logic0;
           end
-          default: begin
+
+          default: begin// Comment
+    // Comment
+
             logic0 <= logic0;
 logic1 <= logic1;
           end

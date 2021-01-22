@@ -21,7 +21,8 @@
 ##
 ################################################################################
 
-import os, sys, time
+import os, sys, subprocess, time
+import argparse
 import sv_parser
 
 # Pretty System Verilog
@@ -29,14 +30,10 @@ def psv():
 
   _start_time = time.time()
 
-  # The rules file should be local to this script
-  rules_file  = os.path.join(sys.path[0], "rules.yml")
 
-  # Create the parser
-  svparser = sv_parser.SvParser(rules_file)
-
+  format_file(svparser)
   # Create the RTL tree
-  rtl_tree(svparser, os.getcwd())
+  #rtl_tree(svparser, os.getcwd())
   #svparser.print_all_modules()
 
   print("INFO [rtl_tree] Completed in (%s) seconds" % "{:.3f}".format((time.time() - _start_time)))
@@ -44,6 +41,11 @@ def psv():
 
   #pretty(svparser)
   #detect_submodule(svparser)
+
+def format_file(svparser):
+  git_root = svparser.get_git_root()
+  svparser.load_sv_file(git_root + "/psv/rtl/top.sv")
+  svparser.format_file()
 
 def pretty(svparser):
   svparser.pretty("/home/erland/Documents/pretty_system_verilog/psv/rtl/top.sv")
@@ -96,5 +98,54 @@ def get_always_ff(svparser):
   for f in found:
     print(f)
 
+def get_git_root():
+  _is_git = subprocess.Popen(['git', 'rev-parse', '--is-inside-work-tree'],
+                           stdout=subprocess.PIPE).communicate()[0].rstrip().decode('utf-8')
+  if _is_git:
+    return subprocess.Popen(['git', 'rev-parse', '--show-toplevel'],
+                             stdout=subprocess.PIPE).communicate()[0].rstrip().decode('utf-8')
+  else:
+    return ""
+
+
 if __name__ == '__main__':
-  psv()
+
+  _git = get_git_root()
+
+  parser = argparse.ArgumentParser()
+  parser.add_argument("-e", "--example",   action="store_true",        help = "Print example command")
+  parser.add_argument("-r", "--rtl_tree",  type = int, default = 0,    help = "Print an RTL-Tree",                               metavar=' ')
+  parser.add_argument("-d", "--dir",       type = str, default = _git, help = "Root directory of modules, default git toplevel", metavar=' ')
+  parser.add_argument("-f", "--file",      type = str, default = "",   help = "The file to format pretty",                       metavar=' ')
+  parser.add_argument("-y", "--yml",       type = str, default = "",   help = "The YML file containing custom format rules",     metavar=' ')
+  parser.add_argument("-v", "--verbosity", type = int, default = 0,    help = "Increase output verbosity",                       metavar=' ')
+
+  args = parser.parse_args()
+
+  # RTL Tree
+  if args.rtl_tree:
+    svparser = sv_parser.SvParser(verbosity=args.verbosity)
+
+  # Format a file
+  elif args.file:
+    rules_file = args.yml
+
+    if not os.path.isfile(args.file):
+      print("ERROR [psv] File (%s) does not exist" % args.file)
+      sys.exit(-1)
+
+    if not args.file.endswith("_pkg.sv"):
+      print("ERROR [psv] File [-f] must end with (.sv)" % args.file)
+      sys.exit(-1)
+
+    if not os.path.isfile(rules_file):
+      rules_file = os.path.join(sys.path[0], "rules.yml")
+      if not os.path.isfile(rules_file):
+        print("ERROR [psv] File (%s) does not exist" % args.yml)
+        sys.exit(-1)
+
+    svparser = sv_parser.SvParser(yml_rules=args.yml, verbosity=args.verbosity)
+    svparser.load_sv_file(args.file)
+
+  else:
+    print("INFO [psv] Arguments must be provided")

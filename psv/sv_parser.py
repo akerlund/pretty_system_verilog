@@ -80,26 +80,24 @@ class SvParser:
     get_modules_in_folder,\
     find_top_modules
 
-# ------------------------------------------------------------------------------
-#
-# ------------------------------------------------------------------------------
-  def __init__(self, yml_rules):
+  # ----------------------------------------------------------------------------
+  #
+  # ----------------------------------------------------------------------------
+  def __init__(self, yml_rules = "", verbosity = 0):
 
-    self.debug     = 0
-    self.verbosity = 1
+    self.verbosity = verbosity
     self.load_cfg()
-    self.rules = rulebook.RuleBook()
-    self.rules.load_rules(yml_rules)
+
+    if yml_rules:
+      self.rules = rulebook.RuleBook()
+      self.rules.load_rules(yml_rules)
+
     #self.rules.print_rules()
 
     self.list_all_modules(self.cfg_module_root)
     #self.print_all_modules(table=True)
     #self.print_all_modules(print_sub=True)
 
-    print("\n")
-
-    if self.debug >= 1:
-      print("INFO [__init__] Created")
 
   def pretty(self, sv_file):
 
