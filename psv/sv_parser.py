@@ -54,7 +54,9 @@ class SvParser:
     get_typedef_declarations,\
     get_custom_declarations,\
     get_all_brackets,\
-    detect_submodule
+    detect_submodule,\
+    get_subseq_multi_line_comment,\
+    get_subseq_single_line_comment
 
   from sv_rtl_tree import\
     rtl_tree,\
@@ -63,13 +65,7 @@ class SvParser:
   from sv_format import\
     format_file,\
     format_module,\
-    format_always_ff,\
-    format_always_comb,\
-    format_logic_declarations,\
-    format_assign_declarations,\
-    format_module_instances,\
-    format_typedef_declarations,\
-    format_custom_declarations
+    fm_parameters
 
   from sv_print import\
     print_all_modules,\
@@ -79,6 +75,10 @@ class SvParser:
     list_all_modules,\
     get_modules_in_folder,\
     find_top_modules
+
+
+  from f_common import\
+    f_brackets
 
   # ----------------------------------------------------------------------------
   #
@@ -91,7 +91,7 @@ class SvParser:
     if yml_rules:
       self.rules = rulebook.RuleBook()
       self.rules.load_rules(yml_rules)
-      #self.rules.print_rules()
+      self.rules.print_rules()
 
     # TODO: If no module path, set it to git repository
     self.list_all_modules(self.cfg_module_root)

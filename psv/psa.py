@@ -53,12 +53,10 @@ if __name__ == '__main__':
 
   # Develop
   if args.develop:
-    _svparser = sv_parser.SvParser(verbosity=2)
+    _yml      = os.path.join(sys.path[0], "rules.yml")
+    _svparser = sv_parser.SvParser(_yml, verbosity=2)
     _svparser.load_sv_file(_git + "/psv/rtl/top.sv", rm_comments=False)
-    _type, _para, _body = _svparser.get_module()
-    print(_type)
-    print(_para)
-    print(_body)
+    _svparser.format_file()
 
   # RTL Tree
   elif args.rtl_tree:

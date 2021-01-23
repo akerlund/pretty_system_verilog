@@ -33,15 +33,11 @@ def list_all_modules(self, root_folder):
     _all_sv_files += self.find_sv_files(_f, exclude_pkg=1)
   _nr_of_files = len(_all_sv_files)
 
-
   # Variables for modules and interfaces
   self.all_modules    = {}
   self.all_interfaces = []
 
-  if self.verbosity >= 2:
-    print("INFO [list_all_modules] Acquiring all submodules ...")
-    _start_time = time.time()
-
+  _start_time = time.time()
 
   # Iterate all the found System Verilog files
   _i = 1
@@ -90,7 +86,7 @@ def list_all_modules(self, root_folder):
             #  print("WARNING [detect_submodule] Incorrect type, a SV key: (%s)" % _module_type)
 
   if self.verbosity >= 2:
-    print('\n')
+    #print('\n')
     print("INFO [list_all_modules] Completed in (%s) seconds" % "{:.3f}".format((time.time() - _start_time)))
     print("INFO [list_all_modules] Nr of modules:    (%s)" % len(self.all_modules))
     print("INFO [list_all_modules] Nr of interfaces: (%s)" % len(self.all_interfaces))

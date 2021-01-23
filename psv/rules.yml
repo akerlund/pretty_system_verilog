@@ -2,47 +2,59 @@
 rules:
 
   module_indentation:
-    desc:  The module indentation of the port declarations
+    desc:  "The module indentation of the port declarations"
     value: 4
 
   global_indentation:
-    desc:  The indentation after the module declaration
+    desc:  "The indentation after the module declaration"
     value: 2
 
   collect_logics:
-    desc:  Collect all assignments and place them before processes
+    desc:  "Collect all assignments and place them before processes"
     value: True
 
   collect_assignments:
-    desc:  Collect all assignments and place them before processes
+    desc:  "Collect all assignments and place them before processes"
     value: True
 
   allow_key_reg:
-    desc:  Using reg is not allowed (NOT SUPPORTED)
+    desc:  "Using reg is not allowed (NOT SUPPORTED)"
     value: False
 
   allow_key_wire:
-    desc:  Using wire is not allowed (NOT SUPPORTED)
+    desc:  "Using wire is not allowed (NOT SUPPORTED)"
     value: False
 
   localparam_types:
-    desc:  Mandatory types for localparams
+    desc:  "Mandatory types for localparams"
     value:
       - logic
       - int
 
   parameter_types:
-    desc:  Mandatory types for parameters
+    desc:  "Mandatory types for parameters"
     value:
       - logic
       - int
 
-  newlines_above_comments:
-    desc:  Number of newlines to be places above comments
-    value:
-      - logic
-      - int
+  comment_head:
+    desc:  "Number of newlines to be places above comments"
+    value: 1
 
+  bracket_spaces_in:
+    desc:  "Number of spaces in brackets, e.g., [1 : 0], if (1) space"
+    value: 1
+
+  bracket_spaces_out:
+    desc:  "Number of spaces in brackets, e.g., ([1 : 0] [2 : 0]), if (1) space"
+    value: 1
+
+  bracket_adjust:
+    desc:  "Left or right adjust brackets, e.g.,
+            logic    [1 : 0] [1 : 0] name; // Right
+            logic [1 : 0] [1 : 0]    name; // Left
+           "
+    value: "RIGHT"
 
 
 

@@ -60,7 +60,7 @@ def get_comment_pre_offset(self, offset):
 # ------------------------------------------------------------------------------
 #
 # ------------------------------------------------------------------------------
-def get_module(self, only_name = 0):
+def get_module(self, only_name=True):
 
   rexp_name = r'^\s*module (\w+)(\s*#?|\s*\(?)'
   rexp_full = r'\n+\s*module\s*(\w+)\s*#\s*\(([\s\w_=^,\-+*[\]\/\"\'()$%`<>|&!~#.?{}:]*)\)\s*\((\s*[\s\w_=\-(),\/[\]:*"\']*\s*\));'
@@ -74,6 +74,9 @@ def get_module(self, only_name = 0):
     return _name
 
   else:
+
+    # TODO: Get the indeces, start and stop in order to replace
+    # TODO: Use ';' in comments
 
     # Matching parameterized modules
     match = re.search(rexp_full, self.flat)
@@ -220,3 +223,26 @@ def detect_submodule(self, top_type):
 
 
   return mod
+
+# ------------------------------------------------------------------------------
+#
+# ------------------------------------------------------------------------------
+def get_subseq_multi_line_comment(self, line):
+
+  e0 = r'(/\*[^*]*\*+(?:[^/*][^*]*\*+)*/)'
+  match = re.search(e0, line)
+  if match:
+    return match.group(1)
+  return ""
+
+
+# ------------------------------------------------------------------------------
+#
+# ------------------------------------------------------------------------------
+def get_subseq_single_line_comment(self, line):
+
+  e0 = r'(//.*)$'
+  match = re.search(e0, line)
+  if match:
+    return match.group(1)
+  return ""

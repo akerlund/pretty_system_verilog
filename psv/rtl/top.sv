@@ -21,8 +21,9 @@ import some_pkg::*;
 
 module top_module #(
   parameter int PARAMETER0_P  = -1,
-    parameter logic PARAMETER1_P  = -1, // " ' $ % ' ` + * < > | & ^ . { } # :
-  parameter int PARAMETER2_P = -1
+  parameter logic PARAMETER1_P  = -1, // " ' $ % ' ` + * < > | & ^ . { } # :
+  parameter logic [7 : 0] [1:0] [4 :0] PARAMETER2_P  = -1, // " ' $ % ' ` + * < > | & ^ . { } # :
+  parameter int PARAMETER3_P = -1
 )(
   // Clock and reset
   input  wire  clk,
