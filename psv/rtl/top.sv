@@ -1,3 +1,24 @@
+/* TODO:
+
+  Use ';' in comments
+
+*/
+/*
+  Header one of module top_module #(
+*/
+// Header two of module top_module #(
+/**
+   Header three of module top_module #(
+  */
+
+  // Header four
+  // of module top_module #(
+
+import some_pkg::*;
+
+import some_pkg::*;
+
+
 module top_module #(
   parameter int PARAMETER0_P  = -1,
   parameter logic PARAMETER1_P  = -1, // " ' $ % ' ` + * < > | & ^ . { } # :
@@ -22,7 +43,8 @@ module top_module #(
   input wire   [PARAMETER0_P-1 : 0]                          valid1,
   output logic [PARAMETER0_P-1 : 0]                          ready1,
   input wire   [PARAMETER0_P-1:0] [PARAMETER1_P-1 : 0][PARAMETER2_P-1 : 0] data1
-);
+
+  );
 
 localparam logic [$clog2(PARAMETER0_P)-1 : 0] LOCALPARAM_C = 1;
 

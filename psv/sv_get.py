@@ -62,12 +62,12 @@ def get_comment_pre_offset(self, offset):
 # ------------------------------------------------------------------------------
 def get_module(self, only_name=True):
 
-  rexp_name = r'^\s*module\s+(\w+)\s*(\#|\()?'
-  rexp_full = r'\n+\s*module\s*(\w+)\s*#\s*\(([\s\w_=^,\-+*[\]\/\"\'()$%`<>|&!~#.?{}:]*)\)\s*\((\s*[\s\w_=\-(),\/[\]:*"\']*\s*\));'
+  rexp_name = r'^[ ]*module\s+(\w+)\s*(\#|\()?'
+  rexp_full = r'^\s*module\s*(\w+)\s*#\s*\(([\s\w_=^,\-+*[\]\/\"\'()$%`<>|&!~#.?{}:]*)\)\s*\((\s*[\s\w_=\-(),\/[\]:*\"\']*\s*)\)\s*;'
 
   if only_name:
 
-    match = re.search(rexp_name, self.flat)
+    match = re.search(rexp_name, self.flat, re.MULTILINE)
     _name = ""
     if match:
       _name = match.group(1)
@@ -79,7 +79,7 @@ def get_module(self, only_name=True):
     # TODO: Use ';' in comments
 
     # Matching parameterized modules
-    match = re.search(rexp_full, self.flat)
+    match = re.search(rexp_full, self.flat, re.MULTILINE)
     _type = ""
     _para = ""
     _body = ""

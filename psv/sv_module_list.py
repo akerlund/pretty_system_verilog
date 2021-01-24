@@ -97,8 +97,6 @@ def list_all_modules(self, root_folder):
     print("INFO [list_all_modules] Nr of modules:    (%s)" % len(self.all_modules))
     print("INFO [list_all_modules] Nr of interfaces: (%s)" % len(self.all_interfaces))
 
-  if self.verbosity >= 1000:
-    self.print_all_modules(print_sub=True, table=False)
 # ------------------------------------------------------------------------------
 #
 # ------------------------------------------------------------------------------
@@ -115,7 +113,7 @@ def get_modules_in_folder(self, root_folder):
     for sv in sv_files:
 
       # Load the file
-      self.load_sv_file(sv, rm_comments=False)
+      self.load_sv_file(sv, rm_comments=True)
 
       # Get the module's name
       _m_name           = self.get_module(only_name=1)
@@ -148,7 +146,6 @@ def find_top_modules(self, pwd = ""):
 
 
   if self.verbosity >= 1000:
-    self.print_all_modules()
     print("DEBUG [find_top_modules] Local modules in (%s):" % pwd)
     for _key in _pwd_m:
       print(_key)

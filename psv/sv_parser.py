@@ -65,7 +65,8 @@ class SvParser:
   from sv_format import\
     format_file,\
     format_module,\
-    fm_parameters
+    fm_mod_parameters,\
+    fm_mod_body
 
   from sv_print import\
     print_all_modules,\

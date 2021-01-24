@@ -26,6 +26,10 @@ import subprocess
 #
 # ------------------------------------------------------------------------------
 def load_sv_file(self, file_path, rm_comments=True):
+
+  if not self.file_exists(file_path):
+    print("INFO [load_sv_file] File (%s) does not exist" % file_path)
+
   with open(file_path, 'r') as file:
     self.current_file = file_path
     self.svf          = file.read().split('\n')
@@ -96,7 +100,7 @@ def get_git_root(self):
 # ------------------------------------------------------------------------------
 def remove_comments(self, string):
   # Remove all occurrences streamed comments (/*COMMENT */) from string
-  string = re.sub(re.compile(r"/\*.*?\*/",re.DOTALL), "",string)
+  string = re.sub(re.compile(r"/\*.*?\*/",re.DOTALL), "", string)
   # Remove all occurrence single-line comments (//COMMENT\n ) from string
   string = re.sub(re.compile(r"//.*?\n" ), "", string)
   return string
