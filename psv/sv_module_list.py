@@ -27,9 +27,15 @@ import sv_keywords
 # ------------------------------------------------------------------------------
 def list_all_modules(self, root_folder):
 
+  if self.verbosity >= 1000:
+    print("DEBUG [list_all_modules] Root folder: (%s)" % root_folder)
+    print("DEBUG [list_all_modules] RTL folders:")
+
   # Find all System Verilog files
   _all_sv_files = []
   for _f in self.find_rtl_folders(root_folder):
+    if self.verbosity >= 1000:
+      print("DEBUG [list_all_modules] RTL folder: (%s)" % _f)
     _all_sv_files += self.find_sv_files(_f, exclude_pkg=1)
   _nr_of_files = len(_all_sv_files)
 
@@ -86,12 +92,13 @@ def list_all_modules(self, root_folder):
             #  print("WARNING [detect_submodule] Incorrect type, a SV key: (%s)" % _module_type)
 
   if self.verbosity >= 2:
-    #print('\n')
+    print('\n')
     print("INFO [list_all_modules] Completed in (%s) seconds" % "{:.3f}".format((time.time() - _start_time)))
     print("INFO [list_all_modules] Nr of modules:    (%s)" % len(self.all_modules))
     print("INFO [list_all_modules] Nr of interfaces: (%s)" % len(self.all_interfaces))
 
-
+  if self.verbosity >= 1000:
+    self.print_all_modules(print_sub=True, table=False)
 # ------------------------------------------------------------------------------
 #
 # ------------------------------------------------------------------------------
@@ -108,11 +115,14 @@ def get_modules_in_folder(self, root_folder):
     for sv in sv_files:
 
       # Load the file
-      self.load_sv_file(sv)
+      self.load_sv_file(sv, rm_comments=False)
 
       # Get the module's name
       _m_name           = self.get_module(only_name=1)
-      _modules[_m_name] = self.all_modules[_m_name]
+      if not _m_name:
+        print("ERROR [get_modules_in_folder] Module with zero length name found in:\n%s%s" % (30*' ', sv))
+      else:
+        _modules[_m_name] = self.all_modules[_m_name]
 
   return _modules
 

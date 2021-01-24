@@ -62,7 +62,7 @@ def get_comment_pre_offset(self, offset):
 # ------------------------------------------------------------------------------
 def get_module(self, only_name=True):
 
-  rexp_name = r'^\s*module (\w+)(\s*#?|\s*\(?)'
+  rexp_name = r'^\s*module\s+(\w+)\s*(\#|\()?'
   rexp_full = r'\n+\s*module\s*(\w+)\s*#\s*\(([\s\w_=^,\-+*[\]\/\"\'()$%`<>|&!~#.?{}:]*)\)\s*\((\s*[\s\w_=\-(),\/[\]:*"\']*\s*\));'
 
   if only_name:

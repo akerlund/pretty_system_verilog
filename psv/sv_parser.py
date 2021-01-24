@@ -91,7 +91,7 @@ class SvParser:
     if yml_rules:
       self.rules = rulebook.RuleBook()
       self.rules.load_rules(yml_rules)
-      self.rules.print_rules()
+      #self.rules.print_rules()
 
     # TODO: If no module path, set it to git repository
     self.list_all_modules(self.cfg_module_root)

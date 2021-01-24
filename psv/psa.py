@@ -42,25 +42,26 @@ if __name__ == '__main__':
 
   parser = argparse.ArgumentParser()
   parser.add_argument("-e", "--example",   action="store_true",        help = "Print example command")
-  parser.add_argument("-r", "--rtl_tree",  type = int, default = 0,    help = "Print an RTL-Tree",                               metavar=' ')
-  parser.add_argument("-p", "--dir",       type = str, default = _git, help = "Root directory of modules, default git toplevel", metavar=' ')
+  parser.add_argument("-r", "--rtl_tree",  action="store_true",        help = "Print an RTL-Tree")
+  parser.add_argument("-d", "--develop",   action="store_true",        help = "Do some development function")
+  parser.add_argument("-p", "--path",      type = str, default = _git, help = "Root directory of modules, default git toplevel", metavar=' ')
   parser.add_argument("-f", "--file",      type = str, default = "",   help = "The file to format pretty",                       metavar=' ')
   parser.add_argument("-y", "--yml",       type = str, default = "",   help = "The YML file containing custom format rules",     metavar=' ')
   parser.add_argument("-v", "--verbosity", type = int, default = 0,    help = "Increase output verbosity",                       metavar=' ')
-  parser.add_argument("-d", "--develop",   action="store_true",        help = "Do some development function")
 
   args = parser.parse_args()
 
+  _yml = os.path.join(sys.path[0], "rules.yml")
+
   # Develop
   if args.develop:
-    _yml      = os.path.join(sys.path[0], "rules.yml")
     _svparser = sv_parser.SvParser(_yml, verbosity=2)
     _svparser.load_sv_file(_git + "/psv/rtl/top.sv", rm_comments=False)
     _svparser.format_file()
 
   # RTL Tree
   elif args.rtl_tree:
-    svparser = sv_parser.SvParser(verbosity=args.verbosity)
+    svparser = sv_parser.SvParser(_yml, verbosity=args.verbosity)
     svparser.rtl_tree(_pwd)
 
   # Format a file

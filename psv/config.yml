@@ -3,8 +3,8 @@ cfg:
 
   module_paths:
     desc:  List of all paths containg rtl folders
-    #value: ${git_root}/psv
-    value: ${git_root}/modules
+    value: ${git_root}/psv
+    #value: ${git_root}/modules
 
   search_paths:
     desc: Enables searching of configured paths in order to yield complete RTL-trees

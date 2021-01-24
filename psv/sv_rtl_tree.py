@@ -57,12 +57,14 @@ def rtl_tree(self, pwd):
       print(_t)
 
   # How many tops that will be rendered is configurable
-  if len(self.tops) > self.cfg_tree_max_tops:
+  if len(_pwd_tops) > self.cfg_tree_max_tops:
     print("ERROR [rtl_tree] More than (%d) top module found!" % self.cfg_tree_max_tops)
     return -1
+  elif not len(_pwd_tops):
+    print("ERROR [rtl_tree] Zero (0) top module found!")
 
   # Generate and print out the RTL Tree of all the tops
-  for t in range(len(self.tops)):
+  for t in range(len(_pwd_tops)):
 
     _rtl_top = _pwd_tops[t]
 
