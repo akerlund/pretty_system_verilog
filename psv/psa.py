@@ -61,8 +61,11 @@ if __name__ == '__main__':
 
   # RTL Tree
   elif args.rtl_tree:
+
+    _start_time = time.time()
     svparser = sv_parser.SvParser(_yml, verbosity=args.verbosity)
     svparser.rtl_tree(_pwd)
+    print("(%s) seconds" % "{:.3f}".format((time.time() - _start_time)))
 
   # Format a file
   elif args.file:

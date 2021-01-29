@@ -13,6 +13,22 @@
 
   // Header four
   // of module top_module #(
+/*
+
+A parsing FSM:
+
+1. keyword parameter
+2. type
+3. range, i.e., []
+4. name
+5. =
+5.1 if not '=' illegal range, move to brackets
+6. value $() OR \w \d
+7.1: ',' -> key word parameter -> 2
+7.2: ',' -> name (type/range the same) -> 4
+7.3: );  -> exit
+
+*/
 
 import some_pkg::*;
 
@@ -23,7 +39,7 @@ module top_module #(
   parameter int PARAMETER0_P  = -1,
   parameter logic PARAMETER1_P  = -1, // " ' $ % ' ` + * < > | & ^ . { } # :
   parameter logic [7 : 0] [1:0] [4 :0] PARAMETER2_P  = -1, // " ' $ % ' ` + * < > | & ^ . { } # :
-  parameter int PARAMETER3_P = -1
+  parameter int PARAMETER3_P = $clog2(PARAMETER1_P)
 )(
   // Clock and reset
   input  wire  clk,
@@ -34,17 +50,19 @@ module top_module #(
   // -------------------------------------------------------------------------
 
   input wire   [PARAMETER0_P-1 : 0]                          valid0,
-  output logic [NR_OF_MASTERS_P-1 : 0]                          ready0,
+  output logic[NR_OF_MASTERS_P-1 : 0]                          ready0,
   input wire   [PARAMETER0_P-1:0] [PARAMETER1_P-1 : 0][PARAMETER2_P-1 : 0] data0
 
   // -------------------------------------------------------------------------
   // AXI4-S Slave
   // -------------------------------------------------------------------------
   input wire   [PARAMETER0_P-1 : 0]                          valid1,
-  output logic [PARAMETER0_P-1 : 0]                          ready1,
+  output logic[PARAMETER0_P-1 : 0]                          ready1,
   input wire   [PARAMETER0_P-1:0] [PARAMETER1_P-1 : 0][PARAMETER2_P-1 : 0] data1
 
   );
+
+parameter illegal = 666;
 
 localparam logic [$clog2(PARAMETER0_P)-1 : 0] LOCALPARAM_C = 1;
 
