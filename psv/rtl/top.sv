@@ -51,7 +51,7 @@ module top_module #(
 
   input wire   [PARAMETER0_P-1 : 0]                          valid0,
   output logic[NR_OF_MASTERS_P-1 : 0]                          ready0,
-  input wire   [PARAMETER0_P-1:0] [PARAMETER1_P-1 : 0][PARAMETER2_P-1 : 0] data0
+  input wire   [PARAMETER0_P-1:0] [$clog2(PARAMETER1_P)-1 : 0][PARAMETER2_P-1 : 0] data0
 
   // -------------------------------------------------------------------------
   // AXI4-S Slave

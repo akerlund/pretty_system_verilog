@@ -66,7 +66,12 @@ class SvParser:
     format_file,\
     format_module,\
     fm_mod_parameters,\
-    fm_mod_body
+    fm_mod_body,\
+    p_comment,\
+    p_word,\
+    p_bracket,\
+    p_assingment,\
+    p_function
 
   from sv_print import\
     print_all_modules,\

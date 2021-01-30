@@ -40,7 +40,7 @@ def format_module(self, module):
   #print(_para)
   #print(_body)
 
-  self.fm_mod_parameters(_para)
+  #self.fm_mod_parameters(_para)
   self.fm_mod_body(_body)
 
 # ------------------------------------------------------------------------------
@@ -201,60 +201,103 @@ def fm_mod_body(self, body):
   # aligned with eachother.
   _row_template = {"io":"", "type":"", "brackets":"", "name":"", "comment":""}
 
-  # List for saving the parsed rows of the module
-  _b_list = []
-
   # Before analysing, we remove any preceding spaces and check the length
   _body = body.strip()
   _blen = len(_body)
 
-  print("BODY")
-  print(_body)
-
-  _state = "start"
-
-
+  # Port variables
   _word      = ""
   _comment   = ""
   _bracket   = ""
-  _p_counter = 0  # Counting parantheses
+  _assign    = ""
 
-  for _c in body:
 
-    #print(_c, end='')
+  _blen = len(body)
+  _body = body
 
-    if _state == "start":
 
-      if _c == ' ':
-        continue
+  self.discarded_comments = []
 
-      if _c == '/':
-        _state   = "comment_begin"
-        _comment = "/"
-        continue
+  _rows = []
+  _row  = []
 
-      if _c == '[':
-        _state   = "bracket"
-        _bracket = "["
-        continue
 
-      if _c == '$':
-        _state    = "function"
-        _function = "$"
-        continue
+  _i = 0
+  while _i != _blen:
 
-      if _c == '=':
-        _state   = "assign"
-        _bracket = "["
-        continue
+    if _i > _blen:
+      print("FATAL [parse] Counter higher than the length")
+      break
 
-      _state = "word"
-      _word  = _c
+    _c = _body[_i]
+
+    if _c == ' ' or _c == '\n':
+      _i += 1
       continue
 
-    # --------------------------------------------------------------------------
-    # Comments
-    # --------------------------------------------------------------------------
+    _in_txt = "%d/%d" % (_i, _blen)
+    input()
+
+    if _c == '/':
+      _comment = self.p_comment(_body[_i:])
+      _i += len(_comment)
+      _row.append(_comment)
+      print(_comment)
+      continue
+
+    if _c == '[':
+      _bracket = self.p_bracket(_body[_i:])
+      _row.append(_bracket)
+      _i += len(_bracket)
+      print(_bracket)
+      continue
+
+    if _c == '$':
+      _function = self.p_function(_body[_i:])
+      _row.append(_function)
+      _i += len(_function)
+      print(_function)
+      continue
+
+    if _c == '=':
+      _assign = self.p_assingment(_body[_i:])
+      _row.append(_assign)
+      _i += len(_assign)
+      print(_assign)
+      continue
+
+    if _c == ',':
+      _i += 1
+      _rows.append(_row)
+      _row = []
+      continue
+
+    if _c == ')':
+      print("INFO [parse] Done. Parsed (%d/%d) characters" % (_i, _blen))
+      break
+
+    _word = self.p_word(_body[_i:])
+    _row.append(_word)
+    _i += len(_word)
+    print(_word)
+
+
+  for _row in _rows:
+    print(' '.join(_row))
+
+
+# ------------------------------------------------------------------------------
+# Comments
+# Argument "txt" is a string and must begin with either "//" or "/*"
+# ------------------------------------------------------------------------------
+
+def p_comment(self, txt):
+
+  #print("DEBUG [p_comment] Called")
+
+  _state = "comment_begin"
+
+  for _c in txt:
 
     if _state == "comment_begin":
 
@@ -268,17 +311,13 @@ def fm_mod_body(self, body):
         _comment = "/*"
         continue
 
-      print("ERROR [body_parser] /")
+      print("ERROR [p_comment] /")
       sys.exit(1)
 
     if _state == "comment_line":
 
       if _c == '\n':
-        _state          = "start"
-        _row            = _row_template
-        _row["io"]      = "comment_line"
-        _row["comment"] = _comment
-        continue
+        return _comment
 
       _comment += _c
       continue
@@ -286,211 +325,142 @@ def fm_mod_body(self, body):
     if _state == "comment_mline":
 
       if _c == '/' and _comment[-1] == "*":
-        _state          = "start"
-        _row            = _row_template
-        _row["io"]      = "comment_mline"
-        _row["comment"] = _comment
-        continue
+        return _comment
 
-
-    # --------------------------------------------------------------------------
-    # Words
-    # --------------------------------------------------------------------------
-
-    if _state == "words":
-
-      if _c == ' ':
-        _state = "start"
-        _word  += _c
-        continue
-
-      if _c == '[':
-        _state   = "bracket"
-        _bracket = "["
-        # TODO: Save word
-        continue
-
-    # --------------------------------------------------------------------------
-    # Brackets
-    # --------------------------------------------------------------------------
-
-    if _state == "bracket":
-
-      if _c == ']':
-        _state  = "start"
-      _bracket += _c
+      _comment += _c
       continue
 
-    # --------------------------------------------------------------------------
-    # Functions
-    # TODO: Be inside brackets
-    # --------------------------------------------------------------------------
+  print("FATAL [parse] Comment error")
+
+# ------------------------------------------------------------------------------
+# Words:
+# input, output, wire, logic, <labels>, parameter, int, logic
+# ------------------------------------------------------------------------------
+
+def p_word(self, txt):
+
+  #print("DEBUG [p_word] Called")
+
+  _word_endings = [' ', ',', '[', '=', '$', ')', '\n']
+  _word         = ""
+
+  for _c in txt:
+
+    if _c in _word_endings:
+      return _word
+
+    _word += _c
+
+    # Comment?
+    if _c == '/':
+      if _word[-1] == '/':
+        _l_cmt  = self.p_comment(txt[len(_word):])
+      if _word[-1] == '*':
+        _ml_cmt = self.p_comment(txt[len(_word):])
+
+  print("FATAL [parse] Word error")
+
+# ------------------------------------------------------------------------------
+# Brackets
+# ------------------------------------------------------------------------------
+
+def p_bracket(self, txt):
+
+  #print("DEBUG [p_bracket] Called")
+
+  _bracket = ""
+  _tlen    = len(txt)
+  _i       = 0
+
+  while _i != _tlen:
+
+    if _i > _tlen:
+      print("FATAL [p_bracket] Counter higher than the length")
+      break
+
+    _c = txt[_i]
+
+    if _c == '$':
+      _function = self.p_function(txt[_i:])
+      _bracket += _function
+      _i += len(_function)
+      continue
+
+    if _c == ']':
+      _bracket += _c
+      return _bracket
+
+    if _c == '/':
+      if txt[_i+1] == '/' or txt[_i+1] == '*':
+        print("WARNING [p_bracket] Comment in bracket")
+        _comment = self.p_comment(txt[_i:])
+        self.discarded_comments.append(_comment)
+        _i += len(_comment)
+        continue
+
+    _bracket += _c
+    _i       += 1
+
+  print("FATAL [p_bracket] No more characters!")
+
+# ------------------------------------------------------------------------------
+# Assignments (parameters only)
+# ------------------------------------------------------------------------------
+
+def p_assingment(self, txt):
+
+  #print("DEBUG [p_assingment] Called")
+
+  for _c in txt:
+
+    # These characters ends a parameter declaration and assignment
+    if _c == ',' or _c == ')':
+      print("INFO [assign] %s" % _assign) #TODO: Done, what now?
+      continue
+
+    # Line comment?
+    #TODO: Some idiot can set the ',' after the line comment
+    if _c == '/':
+      if _assign[-1] == '/':
+        _pstate = "assign"
+        _state  = "comment_line"
+        _assign = _assign[:-1]
+        continue
+
+    # Multi line comment?
+    if _c == '*':
+      if _assign[-1] == '/':
+        _pstate = "assign"
+        _state  = "comment_mline"
+
+    # Function?
+    if _c == '$':
+      _state  = "function"
+
+    # Assignment value
+    _assign += _c
 
 
+# ------------------------------------------------------------------------------
+# Functions
+# ------------------------------------------------------------------------------
 
+def p_function(self, txt):
 
+  #print("DEBUG [p_function] Called")
 
+  _function      = ""
+  _l_parantheses = 0
+  _r_parantheses = 0
 
+  for _c in txt:
+    _function += _c
+    if _c == '(':
+      _l_parantheses += 1
+    if _c == ')':
+      _r_parantheses += 1
+    if _l_parantheses != 0:
+      if _l_parantheses == _r_parantheses:
+        return _function
 
-
-
-
-
-
-
-
-
-
-
-
-# def fm_mod_body_old(self, body):
-
-
-#   def skip_row(__b):
-#     _s = __b.find('\n')
-#     if _s >= 0:
-#       print("Removing: >" + __b[:_s] + "<")
-#       __b = __b[_s:].strip() # Strip so that first character is NOT a space
-#     else:
-#       print("Removing: >" + __b + "<")
-#       __b = ""
-
-#     return __b
-
-#   # We analyse the string and reduce the remainder (_blen) after each iteration
-
-#   _p_nr = 0 # Iteration counter
-#   while _blen != 0:
-
-#     _p_nr += 1
-
-#     # Variables for the parsed information
-#     _io       = ""
-#     _type     = ""
-#     _brackets = ""
-#     _name     = ""
-#     _comment  = ""
-
-#     # Starts with comment?
-#     if _body[0] == "/":
-
-#       _io = "comment"
-
-#       print("%d COMMENT" % _p_nr)
-
-#       # One line comment, i.e., "//"?
-#       if _body[1] == "/":
-#         _j = _body.find('\n')
-#       # Multi-line comment, i.e., "/*"
-#       else:
-#         _j = _body.find('*/') + 2
-
-#       # Append the comment and shift the parameter string
-#       #_f    += self.rules.comment_head*'\n' + _body[0 : _j]
-#       print(">" + _body[:_j] + "<")
-#       _body  = _body[_j:].strip()
-#       _blen  = len(_body)
-#       print('\n')
-#       continue
-
-#     # If the port type is either input or output this variable is set to True
-#     # and common code executed subsequently
-#     _io_match = False
-
-#     # Input port
-#     match = re.search(r'^input\s+(\w*)', _body)
-#     if match:
-
-#       _io_match = True
-#       _io       = "input"
-#       _type     = match.group(1)
-#       if _type != "wire":
-#         print("WARNING [fm_mod_body] input port has the type (%s)" % _type)
-
-#       print("%d INPUT" % _p_nr)
-#       print("Group(1) = %s" % match.group(1))
-
-
-#     # Output port
-#     match = re.search(r'^output\s+(\w*)', _body)
-#     if match:
-
-#       _io_match = True
-#       _io       = "output"
-#       _type     = match.group(1)
-#       if _type != "logic":
-#         print("WARNING [fm_mod_body] output port has the type (%s)" % _type)
-
-#       print("%d OUTPUT" % _p_nr)
-#       print("Group(1) = %s" % match.group(1))
-
-
-#     # Found either input or output port
-#     if _io_match:
-
-#       _line = _body.split('\n')[0]
-
-#       # Get all brackets on this line
-#       # TODO: But perhaps someone declared on multiple lines?
-#       _brackets = self.get_all_brackets(_line)
-
-
-#       _ci          = _line.find("//")  # Comment integer index
-#       _has_comment = _ci >= 0          # Comment boolean
-#       _rt          = 0                 # Set to a value by a matching regexp for knowing which matched
-
-#       # If there is a comment, we look for the name up until the beginning of the
-#       # comment because we consider the ',' which lets us know if it is the last
-#       # port
-#       if _has_comment:
-
-#         if ',' in _line[:_ci]:            # Not the last port if a ',' is found
-#           _e0   = r'^(\w*)\s*,\s*(//\w*)' # Regexp to extract name and comment
-#           match = re.search(_e0,  _line[:_ci])
-#           _rt   = 1
-#         else:
-#           _e0   = r'^(\w*)\s*//(\w*)'
-#           match = re.search(_e0,  _line[:_ci])
-#           _rt   = 2
-
-#       else:
-
-#         if ',' in _line:                  # Not the last port if a ',' is found
-#           _e0   = r'^(\w*)\s*,' # Regexp to extract name and comment
-#           match = re.search(_e0, _line)
-#           _rt   = 3
-#         else:
-#           _e0   = r'^(\w*)\s*'
-#           match = re.search(_e0, _line)
-#           _rt   = 4
-
-#         if not match:
-#           print("ERROR [fm_mod_body] Error %d: %s" % (_rt, _line))
-#         else:
-#           _name    = match.group(1)
-#           _comment = ""
-#           if _rt <= 3:
-#             _comment  = match.group(2)
-
-#           print("_name    = %s" % _name)
-#           print("_comment = %s" % _comment)
-
-#       _body = skip_row(_body)
-#       _blen = len(_body)
-
-#       print('\n')
-
-#       continue
-
-
-#     # Only left now is interface, i.e., custom types?
-
-
-#     _io = "custom"
-
-#     print("%d INTERFACE" % _p_nr)
-#     _body = skip_row(_body)
-#     _blen = len(_body)
-#     continue
-
-
+  print("FATAL [p_function] No more characters!")
