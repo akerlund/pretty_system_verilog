@@ -24,6 +24,7 @@
 import os, sys
 import rulebook
 import yaml
+import tprint as p
 
 # ------------------------------------------------------------------------------
 #
@@ -66,7 +67,7 @@ class SvParser:
     format_file,\
     format_module,\
     fm_mod_parameters,\
-    fm_mod_body,\
+    p_mod_body,\
     p_comment,\
     p_word,\
     p_bracket,\
@@ -91,6 +92,7 @@ class SvParser:
   # ----------------------------------------------------------------------------
   def __init__(self, yml_rules = "", verbosity = 0):
 
+    self._p = p.tprint()
     self.verbosity = verbosity
     self.load_cfg()
 

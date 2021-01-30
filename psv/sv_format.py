@@ -34,14 +34,14 @@ def format_file(self):
 def format_module(self, module):
 
   _type, _para, _body = module
+  self._p.info("pretty", ("Formatting \"%s\"" % _type))
 
-  print("INFO [pretty] Formatting \"%s\"" % _type)
   #print(_type)
   #print(_para)
   #print(_body)
 
   #self.fm_mod_parameters(_para)
-  self.fm_mod_body(_body)
+  self.p_mod_body(_body)
 
 # ------------------------------------------------------------------------------
 # Formats the parameter section of a module:
@@ -110,7 +110,7 @@ def fm_mod_parameters(self, para):
     # There was no comment so this MUST match
     if not match:
       # If there was no match we skip this line
-      print("ERROR [fm_mod_parameters] Error 0")
+      self._p.error("fm_mod_parameters", "Error 0")
       _para = skip_row(_para)
       _plen = len(_para)
       continue
@@ -121,14 +121,14 @@ def fm_mod_parameters(self, para):
     if not _type in sv_keywords.sv_keywords:
       # TODO: It can be a string and this keyword must be missing because parameters are
       #       not supported by tools to have a string type
-      print("ERROR [fm_mod_parameters] Parameter type (%s) is not valid" % _type)
+      self._p.error("fm_mod_parameters", ("Parameter type (%s) is not valid" % _type))
       _para = skip_row(_para)
       _plen = len(_para)
       continue
 
     # Checking if this row does NOT assign the parameter, i.e., uses the '=' operator
     if not row_has_equal_sign:
-      print("ERROR [fm_mod_parameters] Parameter (%s) has no assign operator (=)" % _type)
+      self._p.error("fm_mod_parameters", ("Parameter (%s) has no assign operator (=)" % _type))
       _para = skip_row(_para)
       _plen = len(_para)
       continue
@@ -187,12 +187,10 @@ def fm_mod_parameters(self, para):
 
 
 # ------------------------------------------------------------------------------
-# Formats the body section of a module:
-# 1. Multi-vectors must be defined on one row only
-# 2. No multi-line comment inside declarations
-# 3.
+# Parses the body section of a module and stores the components in a list of
+# lists.
 # ------------------------------------------------------------------------------
-def fm_mod_body(self, body):
+def p_mod_body(self, _body):
 
 
   # A template for storing the body information. We will use "io" also for
@@ -201,32 +199,16 @@ def fm_mod_body(self, body):
   # aligned with eachother.
   _row_template = {"io":"", "type":"", "brackets":"", "name":"", "comment":""}
 
-  # Before analysing, we remove any preceding spaces and check the length
-  _body = body.strip()
+  self.bad_comments = []
+
   _blen = len(_body)
-
-  # Port variables
-  _word      = ""
-  _comment   = ""
-  _bracket   = ""
-  _assign    = ""
-
-
-  _blen = len(body)
-  _body = body
-
-
-  self.discarded_comments = []
-
   _rows = []
   _row  = []
-
-
   _i = 0
   while _i != _blen:
 
     if _i > _blen:
-      print("FATAL [parse] Counter higher than the length")
+      self._p.warning("p_mod_body", "Counter higher than the length")
       break
 
     _c = _body[_i]
@@ -235,8 +217,8 @@ def fm_mod_body(self, body):
       _i += 1
       continue
 
-    _in_txt = "%d/%d" % (_i, _blen)
-    input()
+    #_in_txt = "%d/%d" % (_i, _blen)
+    #input()
 
     if _c == '/':
       _comment = self.p_comment(_body[_i:])
@@ -273,7 +255,9 @@ def fm_mod_body(self, body):
       continue
 
     if _c == ')':
-      print("INFO [parse] Done. Parsed (%d/%d) characters" % (_i, _blen))
+      _i += 1
+      _rows.append(_row)
+      self._p.info("p_mod_body", "Done. Parsed (%d/%d) characters" % (_i, _blen))
       break
 
     _word = self.p_word(_body[_i:])
@@ -282,6 +266,11 @@ def fm_mod_body(self, body):
     print(_word)
 
 
+  if self.bad_comments:
+    self._p.debug("Done", "Bad style comments:")
+    print(self.bad_comments)
+
+  self._p.debug("Done", "Rows:")
   for _row in _rows:
     print(' '.join(_row))
 
@@ -293,44 +282,47 @@ def fm_mod_body(self, body):
 
 def p_comment(self, txt):
 
-  #print("DEBUG [p_comment] Called")
+  self._p.debug("p_comment", "Called")
 
-  _state = "comment_begin"
+  _type    = ""
+  _comment = ""
 
   for _c in txt:
 
-    if _state == "comment_begin":
-
-      if _c == '/':
-        _state   = "comment_line"
-        _comment = "//"
-        continue
-
-      if _c == '*':
-        _state   = "comment_mline"
-        _comment = "/*"
-        continue
-
-      print("ERROR [p_comment] /")
-      sys.exit(1)
-
-    if _state == "comment_line":
-
+    if _type == "comment_line":
+      _comment += _c
       if _c == '\n':
         return _comment
-
-      _comment += _c
       continue
 
-    if _state == "comment_mline":
-
-      if _c == '/' and _comment[-1] == "*":
+    if _type == "comment_mline":
+      _comment += _c
+      if _c == '/' and len(_comment) >= 4 and _comment[-2] == "*":
         return _comment
-
-      _comment += _c
       continue
 
-  print("FATAL [parse] Comment error")
+    if len(_comment) == 0:
+      if _c == '/':
+        _comment = '/'
+        continue
+      else:
+        self._p.fatal("p_comment", "Comment error 0")
+        sys.exit(1)
+        return ""
+
+    if len(_comment) == 1:
+      _comment += _c
+      if _c == '/':
+        _type = "comment_line"
+        continue
+      if _c == '*':
+        _type = "comment_mline"
+        continue
+      self._p.warning("p_comment", "Invalid comment")
+      return ""
+
+  self._p.fatal("p_comment", "Comment error 1")
+  sys.exit(1)
 
 # ------------------------------------------------------------------------------
 # Words:
@@ -358,7 +350,8 @@ def p_word(self, txt):
       if _word[-1] == '*':
         _ml_cmt = self.p_comment(txt[len(_word):])
 
-  print("FATAL [parse] Word error")
+  self._p.fatal("p_word", "Word error")
+  sys.exit(1)
 
 # ------------------------------------------------------------------------------
 # Brackets
@@ -375,7 +368,8 @@ def p_bracket(self, txt):
   while _i != _tlen:
 
     if _i > _tlen:
-      print("FATAL [p_bracket] Counter higher than the length")
+      self._p.fatal("p_bracket", "Counter higher than the length")
+      sys.exit(1)
       break
 
     _c = txt[_i]
@@ -392,16 +386,20 @@ def p_bracket(self, txt):
 
     if _c == '/':
       if txt[_i+1] == '/' or txt[_i+1] == '*':
-        print("WARNING [p_bracket] Comment in bracket")
         _comment = self.p_comment(txt[_i:])
-        self.discarded_comments.append(_comment)
+        self.bad_comments.append(_comment)
         _i += len(_comment)
+        _bracket += _comment
+        self._p.warning("p_bracket", "Comment in bracket (%s)" %_comment)
+        self._p.debug("p_bracket", txt[_i:_i+16])
+        self._p.debug("p_bracket", txt[_i])
         continue
 
     _bracket += _c
     _i       += 1
 
-  print("FATAL [p_bracket] No more characters!")
+  self._p.fatal("p_bracket", " No more characters!")
+  sys.exit(1)
 
 # ------------------------------------------------------------------------------
 # Assignments (parameters only)
@@ -463,4 +461,5 @@ def p_function(self, txt):
       if _l_parantheses == _r_parantheses:
         return _function
 
-  print("FATAL [p_function] No more characters!")
+  self._p.fatal("p_function", " No more characters!")
+  sys.exit(1)

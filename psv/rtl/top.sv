@@ -50,15 +50,22 @@ module top_module #(
   // -------------------------------------------------------------------------
 
   input wire   [PARAMETER0_P-1 : 0]                          valid0,
-  output logic[NR_OF_MASTERS_P-1 : 0]                          ready0,
-  input wire   [PARAMETER0_P-1:0] [$clog2(PARAMETER1_P)-1 : 0][PARAMETER2_P-1 : 0] data0
-
+  output logic[NR_OF_MASTERS_P-1 : 0]        /*sadasd*/                  ready0 /* dumba
+  
+  ss comment*/,
+  input wire   [PARAMETER0/*idiot*/_P-1:0] [$clog2(PARAMETER1_P)-1 : 0][PARAMETER2_P-1 : 0] data0
+ /*idiot
+  s
+  *
+  s
+  */
+/**/,
   // -------------------------------------------------------------------------
   // AXI4-S Slave
   // -------------------------------------------------------------------------
   input wire   [PARAMETER0_P-1 : 0]                          valid1,
   output logic[PARAMETER0_P-1 : 0]                          ready1,
-  input wire   [PARAMETER0_P-1:0] [PARAMETER1_P-1 : 0][PARAMETER2_P-1 : 0] data1
+  input wire   [PARAMETER3_P-1:0] [PARAMETER4_P-1 : 0][PARAMETER5_P-1 : 0] data1
 
   );
 
