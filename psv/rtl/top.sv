@@ -42,30 +42,18 @@ module top_module #(
   parameter int PARAMETER3_P = $clog2(PARAMETER1_P)
 )(
   // Clock and reset
-  input  wire  clk,
-  input  wire                rst_n,
-
-  // -------------------------------------------------------------------------
-  // AXI4-S Masters
-  // -------------------------------------------------------------------------
-
-  input wire   [PARAMETER0_P-1 : 0]                          valid0,
-  output logic[NR_OF_MASTERS_P-1 : 0]        /*sadasd*/                  ready0 /* dumba
-  
-  ss comment*/,
-  input wire   [PARAMETER0/*idiot*/_P-1:0] [$clog2(PARAMETER1_P)-1 : 0][PARAMETER2_P-1 : 0] data0
- /*idiot
-  s
-  *
-  s
-  */
-/**/,
-  // -------------------------------------------------------------------------
-  // AXI4-S Slave
-  // -------------------------------------------------------------------------
-  input wire   [PARAMETER0_P-1 : 0]                          valid1,
-  output logic[PARAMETER0_P-1 : 0]                          ready1,
-  input wire   [PARAMETER3_P-1:0] [PARAMETER4_P-1 : 0][PARAMETER5_P-1 : 0] data1
+  input  wire  clk, // clk " ' $ % ' ` + * < > | & ^ . { } # :
+  input  wire                rst_n,  // rst_n
+  // STANDALONE COMMENT 0
+  input wire   [PARAMETER0_P-1 : 0]                          valid0, // valid0
+  output logic[NR_OF_MASTERS_P-1 : 0]               ready0, /*ready0*/
+  input wire   [PARAMETER0_P/*idi]ot*/-1:0] [$clog2(PARAMETER1_P / 2)-1 : 0][PARAMETER2_P-1 : 0] data0, /*data0*/
+  // STANDALONE COMMENT 1
+  input wire   [PARAMETER0_P-1 : 0]                          valid1, // valid1?!#
+  // STANDALONE COMMENT 2
+  output logic[PARAMETER0_P-1 : 0]                          ready1, // ready1
+  // STANDALONE COMMENT 3
+  input wire   [PARAMETER3_P-1:0] [PARAMETER4_P-1 : 0][PARAMETER5_P-1 : 0] data1 //data1
 
   );
 

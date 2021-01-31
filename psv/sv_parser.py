@@ -72,7 +72,8 @@ class SvParser:
     p_word,\
     p_bracket,\
     p_assingment,\
-    p_function
+    p_function,\
+    f_mod_body
 
   from sv_print import\
     print_all_modules,\

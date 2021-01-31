@@ -19,7 +19,7 @@
 ##
 ################################################################################
 
-import sys, re
+import sys, re, copy
 import sv_keywords
 
 # ------------------------------------------------------------------------------
@@ -41,7 +41,8 @@ def format_module(self, module):
   #print(_body)
 
   #self.fm_mod_parameters(_para)
-  self.p_mod_body(_body)
+  _pbody = self.p_mod_body(_body) # Returns the parsed body
+  _fbody = self.f_mod_body(_pbody) # Returns the formated body
 
 # ------------------------------------------------------------------------------
 # Formats the parameter section of a module:
@@ -187,8 +188,8 @@ def fm_mod_parameters(self, para):
 
 
 # ------------------------------------------------------------------------------
-# Parses the body section of a module and stores the components in a list of
-# lists.
+# Parses the body section of a module and stores the components (rows) in a list
+# of tuples. The tuple entries are containing (<type>, <value>)
 # ------------------------------------------------------------------------------
 def p_mod_body(self, _body):
 
@@ -204,6 +205,8 @@ def p_mod_body(self, _body):
   _blen = len(_body)
   _rows = []
   _row  = []
+  _end   = False
+  _nl    = False
   _i = 0
   while _i != _blen:
 
@@ -213,57 +216,100 @@ def p_mod_body(self, _body):
 
     _c = _body[_i]
 
-    if _c == ' ' or _c == '\n':
+    if _c == ' ':
       _i += 1
+      continue
+
+
+    if _c == '\n':
+      _i += 1
+      _end = False # A port cannot be commented on the next row
+      _nl  = True
       continue
 
     #_in_txt = "%d/%d" % (_i, _blen)
     #input()
 
     if _c == '/':
+
       _comment = self.p_comment(_body[_i:])
       _i += len(_comment)
-      _row.append(_comment)
-      print(_comment)
+
+      # The port declaration has not ended
+      if not _end:
+        if not _nl:
+          # No newline discovered: adding the comment to current row
+          # This is necessary for the corner case of the last port's declaration which can
+          # have its end character ')' after a newline
+          _row.append(("c", _comment))
+        else:
+          # This must be a comment on a separate row, e.g., "  // Clock and reset"
+          _rows.append([("c", _comment)])
+
+      # The port declaration has ended, i.e., we have seen a ',' (or a ')')
+      else:
+        # If there haven't been a newline, this comment belongs to the row we have appended previously
+        if not _nl:
+          _rows[-1].append(("c", _comment))
+        else:
+          # If we get here, the declaration has ended, but there is new seen newline either
+          self._p.warning("p_mod_body", "Corner case 0, should not happen (%s)"%_comment)
+          _rows.append([("c", _comment)])
+
+      _end = False
+      #print(_comment)
       continue
 
     if _c == '[':
+      _end = False
       _bracket = self.p_bracket(_body[_i:])
-      _row.append(_bracket)
+      _row.append(("b", _bracket))
       _i += len(_bracket)
-      print(_bracket)
+      #print(_bracket)
       continue
 
     if _c == '$':
+      _end = False
       _function = self.p_function(_body[_i:])
-      _row.append(_function)
+      _row.append(("f", _function))
       _i += len(_function)
-      print(_function)
+      #print(_function)
       continue
 
     if _c == '=':
       _assign = self.p_assingment(_body[_i:])
-      _row.append(_assign)
+      _row.append(("a", _assign))
       _i += len(_assign)
-      print(_assign)
+      #print(_assign)
       continue
 
     if _c == ',':
+      _end = True
       _i += 1
       _rows.append(_row)
       _row = []
       continue
 
     if _c == ')':
+      _end = True
       _i += 1
       _rows.append(_row)
       self._p.info("p_mod_body", "Done. Parsed (%d/%d) characters" % (_i, _blen))
       break
 
     _word = self.p_word(_body[_i:])
-    _row.append(_word)
+    _row.append(("w", _word))
     _i += len(_word)
-    print(_word)
+    _end = False
+    _nl  = False
+    #print(_word)
+
+  # Checking the last comment
+  # if len(_rows[-1]) == 1:         # If the length of the last row is one, it is only a comment
+  #   _type, _value = _rows[-2][-1] # We extract the last entry of the next last row and
+  #   if _type != 'c':              # If this entry is missing a comment, we should move the len(1) entry here
+  #     _rows[-2].append(_rows[-1][0])
+  #     _rows = _rows[:-1]
 
 
   if self.bad_comments:
@@ -271,9 +317,18 @@ def p_mod_body(self, _body):
     print(self.bad_comments)
 
   self._p.debug("Done", "Rows:")
-  for _row in _rows:
-    print(' '.join(_row))
+  _i = 0
 
+  for _row in _rows:
+    _line = ""
+    for _c in _row:
+      _t, _l = _c
+      _line += _l + ' '
+    print("Row %d:"%_i + _line)
+    _line = ""
+    _i += 1
+
+  return _rows
 
 # ------------------------------------------------------------------------------
 # Comments
@@ -282,22 +337,22 @@ def p_mod_body(self, _body):
 
 def p_comment(self, txt):
 
-  self._p.debug("p_comment", "Called")
-
   _type    = ""
   _comment = ""
 
   for _c in txt:
 
     if _type == "comment_line":
-      _comment += _c
       if _c == '\n':
+        #self._p.debug("p_comment", "Line (%s)" % _comment)
         return _comment
+      _comment += _c
       continue
 
     if _type == "comment_mline":
       _comment += _c
       if _c == '/' and len(_comment) >= 4 and _comment[-2] == "*":
+        #self._p.debug("p_comment", "Multi line (%s)" % _comment)
         return _comment
       continue
 
@@ -325,7 +380,7 @@ def p_comment(self, txt):
   sys.exit(1)
 
 # ------------------------------------------------------------------------------
-# Words:
+# Words, e.g.,
 # input, output, wire, logic, <labels>, parameter, int, logic
 # ------------------------------------------------------------------------------
 
@@ -354,7 +409,8 @@ def p_word(self, txt):
   sys.exit(1)
 
 # ------------------------------------------------------------------------------
-# Brackets
+# Brackets, e.g.,
+# [$clog2(PARAMETER1_P)-1 : 0]
 # ------------------------------------------------------------------------------
 
 def p_bracket(self, txt):
@@ -463,3 +519,111 @@ def p_function(self, txt):
 
   self._p.fatal("p_function", " No more characters!")
   sys.exit(1)
+
+
+# ------------------------------------------------------------------------------
+# Formating a parsed body
+# ------------------------------------------------------------------------------
+
+def f_mod_body(self, pbody):
+
+  _row_template = {"io":"", "type":"", "brackets":[], "name":"", "comment":""}
+
+  _fbody   = []
+  _ind     = 4
+
+  _i = 0
+
+  # For all rows we have discovered stored in the parsed body variable
+  for _row in pbody:
+
+    # Only comments so far, or is a word found?
+    _w_found = False
+    _port    = copy.deepcopy(_row_template)
+
+    # Iterating all entries on one row
+    for _entry in _row:
+
+      _e_type, _e_value = _entry
+
+      if _w_found == False and _e_type == 'w':
+        _w_found = True
+
+      # Preceeding comments
+      if not _w_found:
+        _cr            = copy.deepcopy(_row_template) # Comment row
+        _cr["io"]      = "c"
+        _cr["comment"] = _e_value
+        _fbody.append(_cr)
+        continue
+
+      # We absolutely need a direction (or interface)
+      if _port["io"] == "":
+        _port["io"] = _e_value
+        continue
+
+      # We need a type, e.g., wire or logic, and if the type is not set yet; now it is
+      if _port["type"] == "":
+        if _e_type == 'w':
+          _port["type"] = _e_value
+          continue
+        else:
+          _port["type"] = " "
+
+      # Append brackets
+      if _e_type == 'b':
+        _port["brackets"].append(_e_value)
+        continue
+
+      # Set the port name
+      if _e_type == 'w':
+        _port["name"] = _e_value
+        continue
+
+      # Trailing comments
+      if _e_type == 'c':
+        _port["comment"] += _e_value
+        continue
+
+    # All entries checked
+    _fbody.append(_port)
+
+    print(80*'-')
+    print("Row %d has length %d: %s" % (_i, len(_row), _row))
+    _io       = _port["io"]
+    _type     = _port["type"]
+    _brackets = ' '.join(_port["brackets"])
+    _name     = _port["name"]
+    _comment  = _port["comment"]
+    print("IO:       " + _io)
+    print("TYPE:     " + _type)
+    print("BRACKETS: " + _brackets)
+    print("NAME:     " + _name)
+    print("COMMENT:  " + _comment)
+    _i += 1
+
+
+
+  # _i = 0
+  # for _port in _fbody:
+  #   _io       = _port["io"]
+  #   _type     = _port["type"]
+  #   _brackets = ' '.join(_port["brackets"])
+  #   _name     = _port["name"]
+  #   _comment  = _port["comment"]
+  #   print("Entry %d" % _i)
+  #   print(_io)
+  #   print(_type)
+  #   print(_brackets)
+  #   print(_name)
+  #   print(_comment)
+  # _i += 1
+
+
+
+#      _line += _l + ' '
+#    print("Row %d:"%_i + _line)
+#    _line = ""
+#    _i += 1
+
+#  for _row in pbody:
